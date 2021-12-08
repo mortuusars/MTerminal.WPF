@@ -1,9 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace MTerminal.WPF;
 
@@ -18,12 +20,68 @@ public partial class TerminalWindow : Window
     public static readonly DependencyProperty IsDockedProperty =
         DependencyProperty.Register("IsDocked", typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
 
-    public TerminalWindow()
+    internal int BufferCapacity { get; set; } = 1600;
+
+    internal TerminalWindow()
     {
         InitializeComponent();
         SizeChanged += ConsoleWindow_SizeChanged;
         StateChanged += ConsoleWindow_StateChanged;
     }
+
+    private void Write(string value, SolidColorBrush? brush)
+    {
+        this.Dispatcher.BeginInvoke(() =>
+        {
+            if (output.Inlines.Count > BufferCapacity)
+                CleanUpInlines();
+
+            Run run = new Run(value);
+            if (brush is not null)
+                run.Foreground = brush;
+            output.Inlines.Add(run);
+            ScrollScreenToEnd();
+        }, null);
+    }
+
+    internal void Write(string value, Color color) => Write(value, new SolidColorBrush(color));
+    internal void Write(string value) => Write(value, null);
+
+    internal void ClearScreen()
+    {
+        this.Dispatcher.Invoke(() => output.Inlines.Clear());
+    }
+
+    internal void ClearLastLine()
+    {
+        this.Dispatcher.Invoke(() =>
+        {
+            List<Inline> inlines = output.Inlines.ToList();
+            inlines.Reverse();
+            List<Inline> lastLineElements = new();
+            foreach (Inline inline in inlines)
+            {
+                lastLineElements.Add(inline);
+                if (inline is Run run && run.Text.Contains('\n'))
+                    break;
+            }
+
+            foreach (Inline inline in lastLineElements)
+            {
+                output.Inlines.Remove(inline);
+            }
+            ScrollScreenToEnd();
+        });
+    }
+
+    private void CleanUpInlines()
+    {
+        var lastItems = output.Inlines.TakeLast(200).ToArray();
+        output.Inlines.Clear();
+        output.Inlines.AddRange(lastItems);
+    }
+
+    private void ScrollScreenToEnd() => screen.ScrollToEnd();
 
     private Point GetMousePosition()
     {
@@ -99,7 +157,26 @@ public partial class TerminalWindow : Window
     private void MinimizeButton_Click(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        this.WindowState = WindowState.Minimized;
+
+        mainGrid.Height = mainGrid.ActualHeight;
+        mainGrid.VerticalAlignment = VerticalAlignment.Bottom;
+
+        TimeSpan duration = TimeSpan.FromMilliseconds(250);
+
+        var anim = new DoubleAnimation(0.0, new Duration(duration), FillBehavior.Stop);
+        anim.EasingFunction = new SineEase() { EasingMode = EasingMode.EaseInOut };
+        mainGrid.BeginAnimation(Grid.HeightProperty, anim);
+        mainGrid.BeginAnimation(Grid.OpacityProperty, anim);
+
+        var timer = new System.Windows.Threading.DispatcherTimer();
+        timer.Interval = duration;
+        timer.Tick += (s, e) =>
+        {
+            this.WindowState = WindowState.Minimized;
+            mainGrid.VerticalAlignment = VerticalAlignment.Stretch;
+            timer.Stop();
+        };
+        timer.Start();
     }
 
     private void MaximizeButton_Click(object sender, RoutedEventArgs e)
@@ -139,7 +216,7 @@ public partial class TerminalWindow : Window
     {
         commandBox.ScrollToEnd();
         commandBox.CaretIndex = commandBox.Text.Length;
-        scrollViewer.ScrollToEnd();
+        ScrollScreenToEnd();
     }
 
     #region Resize
@@ -192,10 +269,12 @@ public partial class TerminalWindow : Window
     {
         if (Keyboard.Modifiers == ModifierKeys.Control)
         {
-            if (e.Delta > 0)
-                logItems.FontSize++;
-            else
-                logItems.FontSize--;
+            if (e.Delta > 0 && screen.FontSize < 64)
+                screen.FontSize++;
+            else if (e.Delta < 0 && screen.FontSize > 1)
+                screen.FontSize--;
+
+            e.Handled = true;
         }
     }
 }

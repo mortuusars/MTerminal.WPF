@@ -17,6 +17,7 @@ namespace MTerminal.WPF.ViewModels
         public string AutocompleteSuggestion { get => _autocompleteSuggestion; set { _autocompleteSuggestion = value; OnPropertyChanged(nameof(AutocompleteSuggestion)); } }
 
         public ICommand ExecuteCommand { get; set; }
+        public ICommand AutocompleteCommand { get; set; }
 
         private string _commandText;
 
@@ -30,7 +31,8 @@ namespace MTerminal.WPF.ViewModels
             _commandText = string.Empty;
 
             ExecuteCommand = new RelayCommand(command => ExecuteInputCommand((string)command));
-        }
+            AutocompleteCommand = new RelayCommand(command => Autocomplete((string)command));
+        }               
 
         private void ExecuteInputCommand(string input)
         {
@@ -60,12 +62,13 @@ namespace MTerminal.WPF.ViewModels
 
         private void GetAutocompletions(string commandText)
         {
-            //AutocompleteSuggestion = string.Empty;
-
-            //if (string.IsNullOrWhiteSpace(commandText))
-                //return;
-
             AutocompleteSuggestion = CommandAutocomplete.MatchOrdered(commandText, _commands.GetCommands()).Command;
+        }
+
+        private void Autocomplete(string command)
+        {
+            CommandText = AutocompleteSuggestion;
+            AutocompleteSuggestion = string.Empty;
         }
     }
 }

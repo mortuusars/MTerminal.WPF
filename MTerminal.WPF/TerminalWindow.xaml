@@ -480,7 +480,7 @@
                         <KeyBinding Key="Down" Command="{Binding FillPreviousDownCommandCommand}" />
                         <KeyBinding
                             Key="Tab"
-                            Command="{Binding AutocompleteCommand}"
+                            Command="{Binding CommandViewModel.AutocompleteCommand}"
                             CommandParameter="{Binding ElementName=commandBox, Path=Text}" />
                     </TextBox.InputBindings>
                     <TextBox.Style>

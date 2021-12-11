@@ -12,9 +12,10 @@ public class Commands
 
         Add(new TerminalCommand("help")
         {
-            Description = "[command] | Prints information about commands and Terminal.",
+            Description = "['command'] | [-full] | Prints information about commands and Terminal.",
             DetailedDescription = "Prints some info about Terminal and lists all registered commands.\n" +
-             "If followed up with a string - will show detailed information about commands that name starts with that string.",
+            "['command']: When followed up with a string - prints detailed info about commands which names start with that string\n" +
+            "[-full]: When paired with a '-full' parameter - will print detailed info about all registered commands.",
             Action = (p) => PrintHelp(p),
         });
 
@@ -76,13 +77,15 @@ public class Commands
 
         if (string.IsNullOrWhiteSpace(parameteters))
             PrintGeneralHelp();
+        else if (parameteters.Contains("-full"))
+            PrintCommandsFullInfo(CommandsList);
         else
-            PrintCommandInfo(parameteters);
+            PrintCommandsFullInfo(CommandAutocomplete.MatchAll(parameteters, CommandsList));
     }
 
     private void PrintGeneralHelp()
     {
-        Terminal.Write($"\n\nMTerminal - {Terminal.Version}", Colors.LightGray);
+        Terminal.Write($"MTerminal - {Terminal.Version}", Colors.LightGray);
         Terminal.WriteLine(" - By Mortuus\n", Colors.Gray);
 
         if (CommandsList.Count == 0)
@@ -105,17 +108,15 @@ public class Commands
         Terminal.WriteLine(new string('_', 40)); // Divider
     }
 
-    private void PrintCommandInfo(string parameteters)
+    private void PrintCommandsFullInfo(IEnumerable<TerminalCommand> commandsToPrint)
     {
-        var matchedCommands = CommandAutocomplete.MatchAll(parameteters, CommandsList);
-
-        if (matchedCommands.Count() == 0)
-            Terminal.WriteLine($"No command that matches '{parameteters}' is found.");
+        if (commandsToPrint.Count() == 0)
+            Terminal.WriteLine($"No matching commands found.");
         else
         {
-            foreach (var cmd in matchedCommands)
+            foreach (var cmd in commandsToPrint)
             {
-                Terminal.WriteLine(cmd.Command + ":\n", Colors.LightGoldenrodYellow);
+                Terminal.WriteLine(cmd.Command + ":\n", Colors.LightGreen);
 
                 Terminal.WriteLine("Description:");
                 Terminal.WriteLine(cmd.Description, Colors.LightGray);
@@ -136,8 +137,8 @@ public class Commands
                     Terminal.WriteLine();
                 }
 
-                if (matchedCommands.Count() > 1)
-                    Terminal.WriteLine(new string('_', 12) + "\n"); // Divider
+                if (commandsToPrint.Count() > 1)
+                    Terminal.WriteLine(new string('_', 30) + "\n"); // Divider
             }
         }
     }

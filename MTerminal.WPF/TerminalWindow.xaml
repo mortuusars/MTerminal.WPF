@@ -4,14 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:conv="clr-namespace:MTerminal.WPF.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:ext="clr-namespace:MTerminal.WPF.WPF"
-    xmlns:local="clr-namespace:MTerminal.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="clr-namespace:MTerminal.WPF.ViewModels"
     x:Name="window"
     Title="{Binding WindowTitle}"
-    Width="750"
-    Height="360"
+    Width="850"
+    Height="450"
     MinWidth="400"
     MinHeight="200"
     AllowsTransparency="True"
@@ -25,10 +23,6 @@
     UseLayoutRounding="True"
     WindowStyle="None"
     mc:Ignorable="d">
-
-    <Window.DataContext>
-        <viewmodels:TerminalViewModel />
-    </Window.DataContext>
 
     <Window.Resources>
         <conv:DateTimeFormatterConverter x:Key="DateFormatConverter" />
@@ -409,7 +403,7 @@
                 Margin="14,10"
                 Background="Transparent"
                 BorderThickness="0"
-                Foreground="{Binding DefaultForegroundColor}"
+                Foreground="{Binding DefaultForeground}"
                 IsReadOnly="True">
                 <FlowDocument>
                     <Paragraph x:Name="output">
@@ -462,7 +456,7 @@
                     Foreground="DarkGray"
                     IsHitTestVisible="False"
                     Opacity="0.5"
-                    Text="{Binding AutocompleteSuggestion, Mode=TwoWay}" />
+                    Text="{Binding CommandViewModel.AutocompleteSuggestion, Mode=TwoWay}" />
 
                 <TextBox
                     x:Name="commandBox"
@@ -476,11 +470,11 @@
                     CaretBrush="DarkGray"
                     Foreground="LightGray"
                     TargetUpdated="commandBox_TargetUpdated"
-                    Text="{Binding CommandText, NotifyOnTargetUpdated=True, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    Text="{Binding CommandViewModel.CommandText, NotifyOnTargetUpdated=True, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.InputBindings>
                         <KeyBinding
                             Key="Return"
-                            Command="{Binding ExecuteCommand}"
+                            Command="{Binding CommandViewModel.ExecuteCommand}"
                             CommandParameter="{Binding ElementName=commandBox, Path=Text}" />
                         <KeyBinding Key="Up" Command="{Binding FillPreviousUpCommandCommand}" />
                         <KeyBinding Key="Down" Command="{Binding FillPreviousDownCommandCommand}" />

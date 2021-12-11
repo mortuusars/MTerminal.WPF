@@ -1,4 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -8,6 +11,17 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace MTerminal.WPF;
+
+internal class TerminalWindowState
+{
+    public double Width { get; set; } = 850;
+    public double Height { get; set; } = 450;
+    public double Left { get; set; } = 200;
+    public double Top { get; set; } = 200;
+
+    public double FontSize { get; set; } = 16;
+    public WindowState WindowState { get; set; }
+}
 
 public partial class TerminalWindow : Window
 {
@@ -22,11 +36,73 @@ public partial class TerminalWindow : Window
 
     internal int BufferCapacity { get; set; } = 1600;
 
+    private string? _stateFilePath = null;
+    private const string _folderName = "MTerminal";
+
     internal TerminalWindow()
     {
         InitializeComponent();
         SizeChanged += ConsoleWindow_SizeChanged;
         StateChanged += ConsoleWindow_StateChanged;
+        LocationChanged += (_, _) => SaveWindowState();
+
+        Loaded += TerminalWindow_Loaded;
+    }
+
+    private void TerminalWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            string localFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string terminalFolder = Path.Combine(localFolder, _folderName);
+            Directory.CreateDirectory(terminalFolder);
+
+            var appName = Process.GetCurrentProcess().ProcessName;
+            _stateFilePath = Path.Combine(terminalFolder, appName + ".json");
+            if (File.Exists(_stateFilePath))
+            {
+                string json = File.ReadAllText(_stateFilePath);
+                var state = JsonSerializer.Deserialize<TerminalWindowState>(json);
+
+                if (state is null)
+                    return;
+
+                this.Width = state.Width;
+                this.Height = state.Height;
+                this.Left = state.Left;
+                this.Top = state.Top;
+                this.FontSize = state.FontSize;
+                this.WindowState = state.WindowState;
+            }
+        }
+        catch (Exception ex)
+        {
+            Terminal.WriteLine("\nRestoring terminal window settings failed:\n" + ex.Message, Colors.DarkRed);
+        }
+    }
+
+    private async void SaveWindowState()
+    {
+        try
+        {
+            TerminalWindowState state = new()
+            {
+                Width = this.Width,
+                Height = this.Height,
+                Left = this.Left,
+                Top = this.Top,
+                FontSize = this.FontSize,
+                WindowState = this.WindowState
+            };
+            string json = JsonSerializer.Serialize(state, new JsonSerializerOptions() { WriteIndented = true });
+
+            if (_stateFilePath is not null)
+                await File.WriteAllTextAsync(_stateFilePath, json);
+        }
+        catch (Exception ex)
+        {
+            Terminal.WriteLine("\nFailed to save terminal window settings:\n" + ex.Message, Colors.DarkRed);
+        }
     }
 
     private void Write(string value, SolidColorBrush? brush)
@@ -47,10 +123,7 @@ public partial class TerminalWindow : Window
     internal void Write(string value, Color color) => Write(value, new SolidColorBrush(color));
     internal void Write(string value) => Write(value, null);
 
-    internal void ClearScreen()
-    {
-        this.Dispatcher.Invoke(() => output.Inlines.Clear());
-    }
+    internal void ClearScreen() => this.Dispatcher.BeginInvoke(() => output.Inlines.Clear(), null);
 
     internal void ClearLastLine()
     {
@@ -81,6 +154,15 @@ public partial class TerminalWindow : Window
         output.Inlines.AddRange(lastItems);
     }
 
+    private void commandBox_TargetUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
+    {
+        commandBox.ScrollToEnd();
+        commandBox.CaretIndex = commandBox.Text.Length;
+        ScrollScreenToEnd();
+    }
+
+    #region WindowControl
+
     private void ScrollScreenToEnd() => screen.ScrollToEnd();
 
     private Point GetMousePosition()
@@ -98,6 +180,8 @@ public partial class TerminalWindow : Window
                   (WindowState == WindowState.Normal &&
                    (Width != RestoreBounds.Width ||
                    Height != RestoreBounds.Height));
+
+        SaveWindowState();
     }
 
     private void ConsoleWindow_StateChanged(object? sender, System.EventArgs e)
@@ -107,6 +191,7 @@ public partial class TerminalWindow : Window
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight - 1;
             IsDocked = true;
             BorderThickness = new Thickness(7);
+            SaveWindowState();
         }
         else
         {
@@ -194,30 +279,26 @@ public partial class TerminalWindow : Window
         }
     }
 
-    private bool _autoScroll;
-
-    private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    private void window_MouseWheel(object sender, MouseWheelEventArgs e)
     {
-        var scroll = (ScrollViewer)sender;
-
-        if (e.ExtentHeightChange == 0)
+        if (Keyboard.Modifiers == ModifierKeys.Control)
         {
-            if (scroll.VerticalOffset == scroll.ScrollableHeight)
-                _autoScroll = true;
-            else
-                _autoScroll = false;
+            if (e.Delta > 0 && screen.FontSize < 64)
+                IncreaseFontSize();
+            else if (e.Delta < 0 && screen.FontSize > 1)
+                DecreaseFontSize();
+
+            SaveWindowState();
+            e.Handled = true;
         }
-
-        if (_autoScroll && e.ExtentHeightChange != 0)
-            scroll.ScrollToVerticalOffset(scroll.ExtentHeight);
     }
 
-    private void commandBox_TargetUpdated(object sender, System.Windows.Data.DataTransferEventArgs e)
-    {
-        commandBox.ScrollToEnd();
-        commandBox.CaretIndex = commandBox.Text.Length;
-        ScrollScreenToEnd();
-    }
+    private void IncreaseFontSize() => this.FontSize++;
+
+    private void DecreaseFontSize() => this.FontSize--;
+
+    #endregion
+
 
     #region Resize
 
@@ -265,16 +346,4 @@ public partial class TerminalWindow : Window
 
     #endregion
 
-    private void window_MouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        if (Keyboard.Modifiers == ModifierKeys.Control)
-        {
-            if (e.Delta > 0 && screen.FontSize < 64)
-                screen.FontSize++;
-            else if (e.Delta < 0 && screen.FontSize > 1)
-                screen.FontSize--;
-
-            e.Handled = true;
-        }
-    }
 }

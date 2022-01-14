@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace MTerminal.WPF;
 
@@ -70,6 +71,7 @@ public static class Terminal
     /// </summary>
     public static void CloseWindow()
     {
+        //TODO: Proper window hiding/closing.
         if (Window is not null)
         {
             Window.WindowState = System.Windows.WindowState.Minimized;

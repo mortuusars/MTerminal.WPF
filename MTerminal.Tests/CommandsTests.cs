@@ -12,18 +12,18 @@ namespace MTerminal.Tests
         [Fact]
         public void AddShouldAddCommandToList()
         {
-            TerminalCommand<string> command = new TerminalCommand<string>("test", "test", (s) => { });
+            TerminalCommand command = new TerminalCommand("test", "test", (s) => { });
             _sut.Add(command);
 
-            IEnumerable<ITerminalCommand> list = _sut.GetCommands();
+            IEnumerable<TerminalCommand> list = _sut.GetCommands();
 
-            Assert.Equal(command, list.First());
+            Assert.True(_sut.Contains("test"));
         }
 
         [Fact]
         public void FindShouldFindCommandWithDifferentStringCase()
         {
-            TerminalCommand<string> command = new TerminalCommand<string>("test", "test", (s) => { });
+            TerminalCommand command = new TerminalCommand("test", "test", (s) => { });
             _sut.Add(command);
 
             Assert.Equal(command, _sut.Find("tEsT"));

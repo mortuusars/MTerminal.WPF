@@ -20,6 +20,7 @@
     FontWeight="Medium"
     KeyDown="Window_KeyDown"
     Mouse.PreviewMouseWheel="window_MouseWheel"
+    ShowActivated="True"
     UseLayoutRounding="True"
     WindowStyle="None"
     mc:Ignorable="d">

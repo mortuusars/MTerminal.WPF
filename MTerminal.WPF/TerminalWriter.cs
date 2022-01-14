@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Windows.Media;
 
@@ -9,12 +8,9 @@ public class TerminalWriter : TextWriter
 {
     public override Encoding Encoding => _encoding;
     private Encoding _encoding = Encoding.Default;
-
     public void SetEncoding(Encoding encoding) => _encoding = encoding;
 
     internal void ClearScreen() => Terminal.Window?.ClearScreen();
-
-    internal void ClearLastLine() => Terminal.Window?.ClearLastLine();
 
     public void Write(string message, Color color) => Terminal.Window?.Write(message, color);
     public void WriteLine(string message, Color color)
@@ -22,6 +18,7 @@ public class TerminalWriter : TextWriter
         Write(message, color);
         WriteLine();
     }
+    internal void ClearLastLine() => Terminal.Window?.ClearLastLine();
 
     // Overriding only these methods should be enough for terminal needs. Other overloads inplemented in base class.
 

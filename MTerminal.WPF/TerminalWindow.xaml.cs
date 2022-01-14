@@ -77,7 +77,7 @@ public partial class TerminalWindow : Window
         }
         catch (Exception ex)
         {
-            Terminal.WriteLine("\nRestoring terminal window settings failed:\n" + ex.Message, Colors.DarkRed);
+            Terminal.WriteLine($"\nCannot restore terminal window settings: '{ ex.Message}'", Colors.DarkRed);
         }
     }
 
@@ -101,27 +101,30 @@ public partial class TerminalWindow : Window
         }
         catch (Exception ex)
         {
-            Terminal.WriteLine("\nFailed to save terminal window settings:\n" + ex.Message, Colors.DarkRed);
+            Terminal.WriteLine($"\nFailed to save terminal window settings: '{ex.Message}'", Colors.DarkRed);
         }
     }
 
-    private void Write(string value, SolidColorBrush? brush)
+    internal void Write(string text, Color? color = null)
     {
-        this.Dispatcher.BeginInvoke(() =>
+        Dispatcher.BeginInvoke(() =>
         {
             if (output.Inlines.Count > BufferCapacity)
                 CleanUpInlines();
 
-            Run run = new Run(value);
-            if (brush is not null)
+            var run = new Run(text);
+
+            if (color is not null)
+            {
+                SolidColorBrush brush = new SolidColorBrush((Color)color);
+                brush.Freeze();
                 run.Foreground = brush;
+            }
+
             output.Inlines.Add(run);
             ScrollScreenToEnd();
-        }, null);
+        });
     }
-
-    internal void Write(string value, Color color) => Write(value, new SolidColorBrush(color));
-    internal void Write(string value) => Write(value, null);
 
     internal void ClearScreen() => this.Dispatcher.BeginInvoke(() => output.Inlines.Clear(), null);
 
@@ -236,7 +239,7 @@ public partial class TerminalWindow : Window
     private void ExitButton_Click(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        this.Close();
+        Terminal.CloseWindow();
     }
 
     private void MinimizeButton_Click(object sender, RoutedEventArgs e)

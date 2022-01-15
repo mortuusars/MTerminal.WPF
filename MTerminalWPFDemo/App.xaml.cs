@@ -31,5 +31,9 @@ public partial class App : Application
         Terminal.ShowWindow();
         Terminal.WriteLine("Writing to a Terminal", Colors.Aqua);
         Terminal.WriteLine("Writing to a Terminal", Colors.IndianRed);
+
+        MTerminal.WPF.Windows.TerminalWindow window = new MTerminal.WPF.Windows.TerminalWindow();
+        window.Show();
+        window.ClosingBehavior = MTerminal.WPF.Windows.WindowClosingBehavior.Hide;
     }
 }

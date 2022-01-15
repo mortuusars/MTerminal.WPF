@@ -11,18 +11,20 @@
     Width="600"
     Height="450"
     Background="#111"
+    FocusManager.FocusedElement="{Binding ElementName=CommandBox}"
     FontFamily="Consolas"
     FontSize="16"
     Foreground="#ccc"
     ResizeMode="CanResize"
+    WindowStyle="SingleBorderWindow"
     mc:Ignorable="d">
 
     <WindowChrome.WindowChrome>
         <WindowChrome
             x:Name="WindowChromeData"
             CaptionHeight="23"
-            CornerRadius="18"
-            GlassFrameThickness="0"
+            CornerRadius="0"
+            GlassFrameThickness="0 0 0 1"
             NonClientFrameEdges="None"
             ResizeBorderThickness="8" />
     </WindowChrome.WindowChrome>
@@ -81,16 +83,6 @@
             x:Key="CloseHeaderButton"
             BasedOn="{StaticResource HeaderButton}"
             TargetType="{x:Type Button}">
-            <Style.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="0 6 0 0" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsDocked, ElementName=window}" Value="True">
-                            <Setter Property="CornerRadius" Value="0" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Style.Resources>
             <Setter Property="Background">
                 <Setter.Value>
                     <SolidColorBrush Opacity="0" Color="#ea5050" />
@@ -122,16 +114,6 @@
             </Style.Triggers>
         </Style>
 
-        <!--<Storyboard x:Key="BlinkingAnimation" x:Name="BlinkingAnimation">
-            <ObjectAnimationUsingKeyFrames
-                RepeatBehavior="Forever"
-                Storyboard.TargetProperty="Visibility"
-                Duration="0:0:0.8">
-                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}" />
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.4" Value="{x:Static Visibility.Hidden}" />
-            </ObjectAnimationUsingKeyFrames>
-        </Storyboard>-->
-
     </Window.Resources>
 
 
@@ -143,16 +125,7 @@
         <Border.Style>
             <Style TargetType="Border">
                 <Setter Property="Margin" Value="0" />
-                <Setter Property="CornerRadius" Value="9" />
                 <Style.Triggers>
-                    <!--<MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding IsDocked, ElementName=window}" Value="True"/>
-                        </MultiDataTrigger.Conditions>
-                    </MultiDataTrigger>-->
-                    <DataTrigger Binding="{Binding IsDocked, ElementName=window}" Value="True">
-                        <Setter Property="CornerRadius" Value="0" />
-                    </DataTrigger>
                     <DataTrigger Binding="{Binding WindowState, ElementName=window}" Value="Maximized">
                         <Setter Property="Margin" Value="8" />
                     </DataTrigger>
@@ -171,16 +144,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Background="{StaticResource Header}">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="6 6 0 0" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsDocked, ElementName=window}" Value="True">
-                                <Setter Property="CornerRadius" Value="0" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -193,11 +157,11 @@
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
-                        <Ellipse
+                        <Image
                             Width="20"
                             Height="20"
                             VerticalAlignment="Center"
-                            Fill="IndianRed" />
+                            Source="../Resources/Images/console.png" />
                         <TextBlock
                             Margin="6,0"
                             VerticalAlignment="Center"
@@ -217,7 +181,6 @@
                         <Button
                             x:Name="MinimizeButton"
                             Width="36"
-                            Height="28"
                             HorizontalAlignment="Right"
                             BorderThickness="0"
                             Click="MinimizeButton_Click"
@@ -336,12 +299,12 @@
                 </Grid.RowDefinitions>
 
                 <RichTextBox
-                    x:Name="screen"
+                    x:Name="Display"
                     d:Foreground="LightGray"
                     Background="Transparent"
                     BorderThickness="0">
                     <FlowDocument>
-                        <Paragraph x:Name="output">
+                        <Paragraph x:Name="DisplayOutput">
                             <d:Run Text="Example Text" />
                         </Paragraph>
                     </FlowDocument>
@@ -353,6 +316,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
+                    <!--  Arrow Symbol  -->
                     <Viewbox
                         x:Name="CommandIndicatorBox"
                         Width="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=3}"
@@ -370,8 +334,9 @@
                             StrokeThickness="5" />
                     </Viewbox>
 
+                    <!--  Command Box  -->
                     <TextBox
-                        x:Name="commandBox"
+                        x:Name="CommandBox"
                         Grid.Column="1"
                         Padding="6"
                         VerticalContentAlignment="Center"

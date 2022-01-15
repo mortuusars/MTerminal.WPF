@@ -29,6 +29,7 @@ namespace MTerminal.WPF.ViewModels
             _commands = commands;
 
             _commandText = string.Empty;
+            _autocompleteSuggestion = string.Empty;
 
             ExecuteCommand = new RelayCommand(command => ExecuteInputCommand((string)command));
             AutocompleteCommand = new RelayCommand(command => Autocomplete((string)command));

@@ -34,6 +34,5 @@ public partial class App : Application
 
         MTerminal.WPF.Windows.TerminalWindow window = new MTerminal.WPF.Windows.TerminalWindow();
         window.Show();
-        window.ClosingBehavior = MTerminal.WPF.Windows.WindowClosingBehavior.Hide;
     }
 }

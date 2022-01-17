@@ -10,7 +10,7 @@ namespace MTerminal.WPF;
 public static class Terminal
 {
     /// <summary>
-    /// Output of the Terminal. Can be set as output of a default <see cref="Console"/> by using <see cref="Console.SetOut(System.IO.TextWriter)"/>.
+    /// Output of the Terminal. Can be set as output of a <see cref="Console"/> by using <see cref="Console.SetOut(System.IO.TextWriter)"/>.
     /// </summary>
     public static TerminalWriter Out { get; }
 

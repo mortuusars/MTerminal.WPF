@@ -9,16 +9,11 @@ namespace MTerminal.WPF.Windows;
 
 public partial class TerminalWindow : Window, IWriterOutput
 {
-    public bool AutoScrollOnChange
-    {
-        get { return (bool)GetValue(AutoScrollOnChangeProperty); }
-        set { SetValue(AutoScrollOnChangeProperty, value); }
-    }
-
     public static readonly DependencyProperty AutoScrollOnChangeProperty =
         DependencyProperty.Register(nameof(AutoScrollOnChange), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(true));
 
-
+    public static readonly DependencyProperty IsCurrentlyScrollableProperty =
+        DependencyProperty.Register(nameof(IsCurrentlyScrollable), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
 
     public bool IsCurrentlyScrollable
     {
@@ -26,10 +21,11 @@ public partial class TerminalWindow : Window, IWriterOutput
         set { SetValue(IsCurrentlyScrollableProperty, value); }
     }
 
-    public static readonly DependencyProperty IsCurrentlyScrollableProperty =
-        DependencyProperty.Register(nameof(IsCurrentlyScrollable), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
-
-
+    public bool AutoScrollOnChange
+    {
+        get { return (bool)GetValue(AutoScrollOnChangeProperty); }
+        set { SetValue(AutoScrollOnChangeProperty, value); }
+    }
 
     public TerminalWindow()
     {
@@ -41,20 +37,16 @@ public partial class TerminalWindow : Window, IWriterOutput
         MouseWheel += TerminalWindow_MouseWheel;
         KeyDown += TerminalWindow_KeyDown;
 
-        //Output.SizeChanged += (s, e) => IsCurrentlyScrollable = OutputScrollViewer.ScrollableHeight > 0.01;
-
         var timer = new DispatcherTimer();
         timer.Interval = TimeSpan.FromMilliseconds(300);
         timer.Tick += WorkingTimer_Tick;
         timer.Start();
-
-        Terminal.Commands.Add(new TerminalCommand("scroll", "", (s) => Terminal.WriteLine($"{IsCurrentlyScrollable} - {OutputScrollViewer.ScrollableHeight}")));
     }
 
     private void WorkingTimer_Tick(object? sender, EventArgs e)
     {
         if (_scrollToEndQueued && AutoScrollOnChange)
-        {   
+        {
             OutputScrollViewer.ScrollToEnd();
             _scrollToEndQueued = false;
         }
@@ -71,7 +63,7 @@ public partial class TerminalWindow : Window, IWriterOutput
     public void Write(string text)
     {
         //if (Output.Inlines.Count > BufferCapacity)
-            //CleanUpInlines();
+        //CleanUpInlines();
 
         Output.Write(text);
         _scrollToEndQueued = true;
@@ -80,7 +72,7 @@ public partial class TerminalWindow : Window, IWriterOutput
     public void Write(string text, Color color)
     {
         //if (Output.Inlines.Count > BufferCapacity)
-            //CleanUpInlines();
+        //CleanUpInlines();
 
         Output.Write(text, color);
         _scrollToEndQueued = true;
@@ -115,7 +107,7 @@ public partial class TerminalWindow : Window, IWriterOutput
 
     internal IEnumerable<Inline> GetInlines() => Output.Inlines.ToArray();
     internal void SetInlines(IEnumerable<Inline> inlines) => Output.Inlines.AddRange(inlines);
-    
+
     #endregion
 
     #region Window - Buttons, Resizing, etc..
@@ -212,5 +204,5 @@ public partial class TerminalWindow : Window, IWriterOutput
     }
 
     #endregion
-    
+
 }

@@ -1,12 +1,8 @@
 ﻿using MTerminal.WPF;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace MTerminalWPFDemo;
 
@@ -16,6 +12,21 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Changing window style:
+        Terminal.Style.WindowTitle = "Demo Terminal";
+        Terminal.Style.Foreground = Color.FromRgb(31, 194, 85);
+
+        // Set Background to custom color:
+        //Terminal.Style.Background = new RadialGradientBrush(Color.FromRgb(20, 30, 26), Color.FromRgb(12, 20, 17)) { Center = new Point(0.5, 0.5) };
+
+        // Set Background to image:
+        BitmapImage img = new BitmapImage(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Images/terminal_bg.png", UriKind.Absolute));
+        Terminal.Style.Background = new ImageBrush(img);
+
+        // Set custom font
+        //Terminal.Style.FontFamily = new FontFamily(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Fonts/"), "./#Classic Console Neue");
+
+        // Adding custom commands:
         Terminal.Commands.Add(new TerminalCommand("crash")
         {
             Description = "[message] | Tries to crash the app",
@@ -25,14 +36,24 @@ public partial class App : Application
         Terminal.Commands.Add(new TerminalCommand("exit")
         {
             Description = "Shutdowns the app",
-            Action = (p) => Shutdown()
+            Action = (_) => Shutdown()
         });
 
-        Terminal.ShowWindow();
-        Terminal.WriteLine("Writing to a Terminal", Colors.Aqua);
-        Terminal.WriteLine("Writing to a Terminal", Colors.IndianRed);
+        // Redirect console output to the terminal:
+        Console.SetOut(Terminal.Out);
+        Console.WriteLine("Written from a default console!");
 
-        MTerminal.WPF.Windows.TerminalWindow window = new MTerminal.WPF.Windows.TerminalWindow();
-        window.Show();
+
+        Terminal.WriteLine("Writing to a Terminal before showing.", Colors.Aqua);
+     
+        // Show the window:
+        Terminal.ShowWindow();
+        
+        Terminal.WriteLine("Writing to a Terminal after showing.", Colors.Fuchsia);
+
+        for (int i = 0; i < 20; i++)
+        {
+            Terminal.WriteLine("test");
+        }
     }
 }

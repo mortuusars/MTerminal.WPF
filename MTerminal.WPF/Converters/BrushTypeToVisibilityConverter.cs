@@ -1,16 +1,18 @@
 ﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace MTerminal.WPF.Converters;
 
-[ValueConversion(typeof(DateTime), typeof(string))]
-internal class DateTimeFormatterConverter : IValueConverter
+internal class BrushTypeToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        DateTime dateTime = (DateTime)value;
-
-        return dateTime.ToString("[HH:mm:ss]", DateTimeFormatInfo.InvariantInfo);
+        if (value is ImageBrush)
+            return Visibility.Visible;
+        else
+            return Visibility.Collapsed;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

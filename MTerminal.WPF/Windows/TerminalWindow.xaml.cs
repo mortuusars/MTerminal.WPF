@@ -3,55 +3,100 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace MTerminal.WPF.Windows;
 
-public partial class TerminalWindow : Window
+public partial class TerminalWindow : Window, IWriterOutput
 {
+    public bool AutoScrollOnChange
+    {
+        get { return (bool)GetValue(AutoScrollOnChangeProperty); }
+        set { SetValue(AutoScrollOnChangeProperty, value); }
+    }
+
+    public static readonly DependencyProperty AutoScrollOnChangeProperty =
+        DependencyProperty.Register(nameof(AutoScrollOnChange), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(true));
+
+
+
+    public bool IsCurrentlyScrollable
+    {
+        get { return (bool)GetValue(IsCurrentlyScrollableProperty); }
+        set { SetValue(IsCurrentlyScrollableProperty, value); }
+    }
+
+    public static readonly DependencyProperty IsCurrentlyScrollableProperty =
+        DependencyProperty.Register(nameof(IsCurrentlyScrollable), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
+
+
+
     public TerminalWindow()
     {
         InitializeComponent();
-        TerminalWindowState.Load(this);
+
+        Loaded += (s, e) => TerminalWindowState.Load(this);
         SizeChanged += (s, e) => RecalculateIsDocked();
+        StateChanged += TerminalWindow_StateChanged;
         MouseWheel += TerminalWindow_MouseWheel;
         KeyDown += TerminalWindow_KeyDown;
+
+        //Output.SizeChanged += (s, e) => IsCurrentlyScrollable = OutputScrollViewer.ScrollableHeight > 0.01;
+
+        var timer = new DispatcherTimer();
+        timer.Interval = TimeSpan.FromMilliseconds(300);
+        timer.Tick += WorkingTimer_Tick;
+        timer.Start();
+
+        Terminal.Commands.Add(new TerminalCommand("scroll", "", (s) => Terminal.WriteLine($"{IsCurrentlyScrollable} - {OutputScrollViewer.ScrollableHeight}")));
     }
 
+    private void WorkingTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_scrollToEndQueued && AutoScrollOnChange)
+        {   
+            OutputScrollViewer.ScrollToEnd();
+            _scrollToEndQueued = false;
+        }
+
+        IsCurrentlyScrollable = OutputScrollViewer.ScrollableHeight > 0.01;
+    }
 
     #region Writing
 
     public int BufferCapacity { get; set; } = 1500;
 
-    internal void Write(string text, Color? color = null)
+    private bool _scrollToEndQueued;
+
+    public void Write(string text)
     {
-        Dispatcher.BeginInvoke(() =>
-        {
-            if (DisplayOutput.Inlines.Count > BufferCapacity)
-                CleanUpInlines();
+        //if (Output.Inlines.Count > BufferCapacity)
+            //CleanUpInlines();
 
-            var run = new Run(text);
-
-            if (color is not null)
-            {
-                SolidColorBrush brush = new((Color)color);
-                brush.Freeze();
-                run.Foreground = brush;
-            }
-
-            DisplayOutput.Inlines.Add(run);
-            ScrollToEnd();
-        });
+        Output.Write(text);
+        _scrollToEndQueued = true;
     }
 
-    internal void ClearScreen() => this.Dispatcher.BeginInvoke(() => DisplayOutput.Inlines.Clear(), null);
+    public void Write(string text, Color color)
+    {
+        //if (Output.Inlines.Count > BufferCapacity)
+            //CleanUpInlines();
 
-    internal void ClearLastLine()
+        Output.Write(text, color);
+        _scrollToEndQueued = true;
+    }
+
+    public bool IsNewLine() => Output.IsNewLine();
+
+    public void ClearScreen() => Dispatcher.BeginInvoke(() => Output.Inlines.Clear(), null);
+
+    public void ClearLastLine()
     {
         this.Dispatcher.Invoke(() =>
         {
-            Inline[] inlines = DisplayOutput.Inlines.ToArray();
+            Inline[] inlines = Output.Inlines.ToArray();
             Array.Reverse(inlines);
-            
+
             List<Inline> lastLineElements = new();
             foreach (Inline inline in inlines)
             {
@@ -62,23 +107,16 @@ public partial class TerminalWindow : Window
 
             foreach (Inline inline in lastLineElements)
             {
-                DisplayOutput.Inlines.Remove(inline);
+                Output.Inlines.Remove(inline);
             }
-            ScrollToEnd();
+            _scrollToEndQueued = true;
         });
     }
 
-    private void CleanUpInlines()
-    {
-        var lastItems = DisplayOutput.Inlines.TakeLast(200).ToArray();
-        DisplayOutput.Inlines.Clear();
-        DisplayOutput.Inlines.AddRange(lastItems);
-    }
-
-    private void ScrollToEnd() => Display.ScrollToEnd();
-
+    internal IEnumerable<Inline> GetInlines() => Output.Inlines.ToArray();
+    internal void SetInlines(IEnumerable<Inline> inlines) => Output.Inlines.AddRange(inlines);
+    
     #endregion
-
 
     #region Window - Buttons, Resizing, etc..
 
@@ -88,6 +126,11 @@ public partial class TerminalWindow : Window
         {
             e.Handled = true;
             CommandBox.Focus();
+        }
+        else if (Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            if (e.Key == Key.OemPlus) IncreaseFontSize();
+            else if (e.Key == Key.OemMinus) DecreaseFontSize();
         }
     }
 
@@ -133,6 +176,14 @@ public partial class TerminalWindow : Window
                    Height != RestoreBounds.Height));
     }
 
+    private void TerminalWindow_StateChanged(object? sender, EventArgs e)
+    {
+        if (WindowState == WindowState.Maximized)
+            this.WindowChromeData.GlassFrameThickness = new Thickness(20);
+        else
+            this.WindowChromeData.GlassFrameThickness = new Thickness(0, 0, 0, 1);
+    }
+
     private static void OnIsDockedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         TerminalWindow window = (TerminalWindow)d;
@@ -161,4 +212,5 @@ public partial class TerminalWindow : Window
     }
 
     #endregion
+    
 }

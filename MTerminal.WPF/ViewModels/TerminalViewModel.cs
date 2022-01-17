@@ -5,20 +5,53 @@ namespace MTerminal.WPF.ViewModels;
 
 internal class TerminalViewModel : ObservableObject
 {
-    public CommandViewModel CommandViewModel { get; set; }
+    public CommandsViewModel CommandsViewModel { get; set; }
 
-    public string WindowTitle { get => _windowTitle; set { _windowTitle = value; OnPropertyChanged(nameof(WindowTitle)); } }
-    public SolidColorBrush DefaultForeground { get => _defaultForeground; set { _defaultForeground = value; _defaultForeground.Freeze(); OnPropertyChanged(nameof(DefaultForeground)); } }
+    public string Title { get => _title; set { _title = value; OnPropertyChanged(nameof(Title)); } }
+    private string _title;
 
-    private string _windowTitle;
-    private SolidColorBrush _defaultForeground;
-
-    public TerminalViewModel(CommandViewModel commandViewModel)
+    private Brush _background;
+    public Brush Background
     {
-        CommandViewModel = commandViewModel;
+        get => _background;
+        set
+        {
+            _background = value;
+            _background.Freeze();
+            OnPropertyChanged(nameof(Background));
+            if (value is ImageBrush brush)
+                ImageBackground = brush;
+        }
+    }
 
-        _windowTitle = "MTerminal";
-        _defaultForeground = Brushes.DarkGray;
-        _defaultForeground.Freeze();
+    private SolidColorBrush _foreground;
+    public SolidColorBrush Foreground
+    {
+        get => _foreground;
+        set { _foreground = value; _foreground.Freeze(); OnPropertyChanged(nameof(Foreground)); }
+    }
+
+    private FontFamily _fontFamily;
+    public FontFamily FontFamily
+    {
+        get => _fontFamily;
+        set { _fontFamily = value; OnPropertyChanged(nameof(FontFamily)); }
+    }
+
+    private ImageBrush? _imageBackground;
+    public ImageBrush? ImageBackground
+    {
+        get => _imageBackground;
+        set { _imageBackground = value; OnPropertyChanged(nameof(ImageBackground)); }
+    }
+
+    public TerminalViewModel()
+    {
+        CommandsViewModel = new CommandsViewModel();
+
+        _title = "MTerminal";
+        _background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#161616"));
+        _foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ccc"));
+        _fontFamily = new FontFamily("Consolas");
     }
 }

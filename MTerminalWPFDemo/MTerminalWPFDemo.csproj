@@ -8,7 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Fonts\clacon2.ttf" />
+    <None Remove="Images\terminal_bg.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MTerminal.WPF\MTerminal.WPF.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Fonts\clacon2.ttf" />
+    <Resource Include="Images\terminal_bg.png" />
   </ItemGroup>
 
 </Project>

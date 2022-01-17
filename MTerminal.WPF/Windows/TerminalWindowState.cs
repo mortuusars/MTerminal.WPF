@@ -15,7 +15,7 @@ internal static class TerminalWindowState
     /// <param name="window">Window that properties will be set.</param>
     public static void Load(Window window)
     {
-        if (GetStateFilePath(window.Title) is string stateFilePath && File.Exists(stateFilePath))
+        if (GetStateFilePath(window) is string stateFilePath && File.Exists(stateFilePath))
         {
             try
             {
@@ -48,7 +48,7 @@ internal static class TerminalWindowState
     /// <param name="window">Window which properties will be saved.</param>
     public static void Save(Window window)
     {
-        if (GetStateFilePath(window.Title) is string stateFilePath)
+        if (GetStateFilePath(window) is string stateFilePath)
         {
             try
             {
@@ -70,8 +70,10 @@ internal static class TerminalWindowState
         }
     }
 
-    private static string? GetStateFilePath(string fileName)
+    private static string? GetStateFilePath(Window window)
     {
+        string fileName = System.Reflection.Assembly.GetEntryAssembly()?.GetName()?.Name ?? window.Title;
+
         try
         {
             string localFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

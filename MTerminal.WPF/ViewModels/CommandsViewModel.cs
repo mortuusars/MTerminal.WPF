@@ -1,16 +1,12 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using MTerminal.WPF.Autocomplete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace MTerminal.WPF.ViewModels
 {
-    internal class CommandViewModel : ObservableObject
+    public class CommandsViewModel : ObservableObject
     {
         public string CommandText { get => _commandText; set { _commandText = value; OnPropertyChanged(nameof(CommandText)); GetAutocompletions(CommandText); } }
 
@@ -24,15 +20,15 @@ namespace MTerminal.WPF.ViewModels
         private Commands _commands;
         private string _autocompleteSuggestion;
 
-        public CommandViewModel(Commands commands)
+        public CommandsViewModel()
         {
-            _commands = commands;
+            _commands = Terminal.Commands;
 
             _commandText = string.Empty;
             _autocompleteSuggestion = string.Empty;
 
-            ExecuteCommand = new RelayCommand(command => ExecuteInputCommand((string)command));
-            AutocompleteCommand = new RelayCommand(command => Autocomplete((string)command));
+            ExecuteCommand = new RelayCommand<string>(command => ExecuteInputCommand((string)command!));
+            AutocompleteCommand = new RelayCommand<string>(command => Autocomplete((string)command!));
         }               
 
         private void ExecuteInputCommand(string input)
@@ -42,7 +38,9 @@ namespace MTerminal.WPF.ViewModels
             if (string.IsNullOrWhiteSpace(input))
                 return;
 
-            Terminal.WriteLine("\n" + input, Colors.Gray);
+            // Print command that was entered
+            string enteredText = Terminal.IsNewLine() ? input : "\n" + input;
+            Terminal.WriteLine(enteredText, Colors.Gray);
 
             int firstSpaceIndex = input.IndexOf(' ');
 

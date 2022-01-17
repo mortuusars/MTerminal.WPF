@@ -2,6 +2,7 @@
 using System.Windows.Media;
 
 namespace MTerminal.WPF;
+
 public class Commands
 {
     internal List<TerminalCommand> CommandsList { get; }
@@ -36,7 +37,7 @@ public class Commands
         return this;
     }
 
-    public TerminalCommand? Find(string command) => CommandsList.FirstOrDefault(c => c.Command.Equals(command, StringComparison.InvariantCultureIgnoreCase));
+    public TerminalCommand? Find(string command) => CommandsList.Find(c => c.Command.Equals(command, StringComparison.InvariantCultureIgnoreCase));
     public bool Remove(TerminalCommand command) => CommandsList.Remove(command);
     public bool Remove(string command) => Find(command) is TerminalCommand cmd ? CommandsList.Remove(cmd) : false;
     public bool Contains(TerminalCommand command) => Find(command.Command) is not null;

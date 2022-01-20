@@ -146,7 +146,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-
+            <!--  BACKGROUND  -->
             <Border
                 x:Name="BG"
                 Grid.RowSpan="2"
@@ -165,7 +165,7 @@
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                         <GradientStop Offset="0" Color="#00000000" />
-                        <GradientStop Offset="1" Color="#50000000" />
+                        <GradientStop Offset="1" Color="#40000000" />
                     </LinearGradientBrush>
                 </Rectangle.Fill>
             </Rectangle>
@@ -309,6 +309,7 @@
                             </Button.Content>
                         </Button>
 
+
                     </StackPanel>
 
                 </Grid>
@@ -322,15 +323,12 @@
                 </Grid.RowDefinitions>
 
                 <!--  OUTPUT  -->
-                <ScrollViewer x:Name="OutputScrollViewer" VerticalScrollBarVisibility="Auto">
-                    <controls:SelectableTextBlock
-                        x:Name="Output"
-                        Margin="0,0,0,14"
-                        VerticalAlignment="Top"
-                        d:Text="Example Text"
-                        Foreground="{Binding Foreground, FallbackValue={StaticResource ForegroundLight}}"
-                        TextWrapping="Wrap" />
-                </ScrollViewer>
+                <controls:ConsoleControl
+                    x:Name="ConsoleOutput"
+                    Margin="0,0,0,14"
+                    BorderThickness="0"
+                    FontSize="{Binding FontSize, ElementName=window}"
+                    Foreground="{Binding Foreground}" />
 
                 <!--  COMMAND BOX  -->
                 <Grid Grid.Row="1">
@@ -386,7 +384,8 @@
                         </TextBox.InputBindings>
                     </TextBox>
 
-                    <ToggleButton
+                    <!--
+                        <ToggleButton
                         Grid.Column="2"
                         Padding="10,0"
                         Background="{StaticResource Header}"
@@ -394,7 +393,7 @@
                         Foreground="{Binding Foreground}"
                         IsChecked="{Binding ElementName=window, Path=AutoScrollOnChange}"
                         Visibility="{Binding ElementName=window, Path=IsCurrentlyScrollable, Converter={StaticResource BoolToVisibility}}" />
-
+                    -->
                 </Grid>
             </Grid>
         </Grid>

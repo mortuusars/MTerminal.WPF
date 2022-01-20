@@ -38,7 +38,7 @@ namespace MTerminal.WPF.ViewModels
             if (string.IsNullOrWhiteSpace(input))
                 return;
 
-            // Print command that was entered
+            //Print command that was entered
             string enteredText = Terminal.IsNewLine() ? input : "\n" + input;
             Terminal.WriteLine(enteredText, Colors.Gray);
 
@@ -56,7 +56,7 @@ namespace MTerminal.WPF.ViewModels
 
             string parameter = commandString.Equals(input) ? command.DefaultParameter ?? string.Empty : input.Substring(firstSpaceIndex);
 
-            _commands.Execute(command, parameter);
+            _commands.Execute(command, parameter.Trim());
         }
 
         private void GetAutocompletions(string commandText)

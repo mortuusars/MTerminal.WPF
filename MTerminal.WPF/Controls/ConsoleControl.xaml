@@ -1,0 +1,41 @@
+﻿<UserControl
+    x:Class="MTerminal.WPF.Controls.ConsoleControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:MTerminal.WPF.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="consoleControl"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type local:ConsoleControl}">
+            <Setter Property="Background" Value="#00000000" />
+            <Setter Property="Foreground" Value="#ccc" />
+            <Setter Property="CaretBrush" Value="#ccc" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </UserControl.Resources>
+
+    <RichTextBox
+        x:Name="console"
+        Background="{Binding ElementName=consoleControl, Path=Background}"
+        BorderBrush="{Binding ElementName=consoleControl, Path=BorderBrush}"
+        BorderThickness="{Binding ElementName=consoleControl, Path=BorderThickness}"
+        CaretBrush="{Binding ElementName=consoleControl, Path=CaretBrush}"
+        FontFamily="{Binding ElementName=consoleControl, Path=FontFamily}"
+        FontSize="{Binding ElementName=consoleControl, Path=FontSize}"
+        Foreground="{Binding ElementName=consoleControl, Path=Foreground}"
+        IsReadOnly="True"
+        IsReadOnlyCaretVisible="False"
+        ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <RichTextBox.Resources>
+            <Style TargetType="{x:Type Paragraph}">
+                <Setter Property="Margin" Value="0" />
+            </Style>
+        </RichTextBox.Resources>
+    </RichTextBox>
+</UserControl>

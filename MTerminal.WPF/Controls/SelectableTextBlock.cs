@@ -40,11 +40,11 @@ public class SelectableTextBlock : TextBlock
 
     public void Write(string text, Color color)
     {
-        Dispatcher.Invoke(() =>
+        Dispatcher.BeginInvoke(() =>
         {
             Run? lastRun = Inlines.LastOrDefault() as Run;
 
-            if (lastRun is not null && ((SolidColorBrush)lastRun.Foreground).Color.Equals(color))
+            if (lastRun is not null && ((SolidColorBrush)lastRun.Foreground).Color.Equals(color) && lastRun.Text.Length < 50)
                 lastRun.Text += text;
             else
             {
@@ -67,17 +67,57 @@ public class SelectableTextBlock : TextBlock
 
     public void Write(string text)
     {
-        Dispatcher.Invoke(() =>
+        //Write(text, ()Foreground.Color)
+
+        //Dispatcher.BeginInvoke(() =>
+        //{
+            //Run? lastRun = Inlines.LastOrDefault() as Run;
+
+            //if (lastRun is not null && lastRun.Foreground.Equals(Foreground))
+            //    lastRun.Text += text;
+            //else
+            //{
+            //    Run run = new(text);
+            //    run.Foreground = Foreground;
+            //    this.Inlines.Add(run);
+            //}
+        //});
+    }
+
+    private void Write(string text, Brush brush)
+    {
+        Dispatcher.BeginInvoke(() =>
         {
             Run? lastRun = Inlines.LastOrDefault() as Run;
 
-            if (lastRun is not null && lastRun.Foreground.Equals(Foreground))
+            if (lastRun is not null && lastRun.Foreground.Equals(brush))
+            {
+                if (lastRun.Text.Length < 50)
+                    lastRun.Text += text;
+                //else
+                    
+
+            }
+
+            if (lastRun is not null && lastRun.Foreground.Equals(brush) && lastRun.Text.Length < 50)
                 lastRun.Text += text;
             else
             {
-                Run run = new(text);
-                run.Foreground = Foreground;
-                this.Inlines.Add(run);
+                //Run run = new(text);
+
+
+
+                //if (_usedColors.ContainsKey(color))
+                //    run.Foreground = _usedColors[color];
+                //else
+                //{
+                //    var brush = new SolidColorBrush(color);
+                //    brush.Freeze();
+                //    run.Foreground = brush;
+                //    _usedColors.Add(color, brush);
+                //}
+
+                //this.Inlines.Add(run);
             }
         });
     }

@@ -13,7 +13,7 @@ internal static class TerminalWindowState
     /// Loads saved window state and sets window properties to those from loaded state.
     /// </summary>
     /// <param name="window">Window that properties will be set.</param>
-    public static void Load(Window window)
+    public static void Load(TerminalWindow window)
     {
         if (GetStateFilePath(window) is string stateFilePath && File.Exists(stateFilePath))
         {
@@ -34,6 +34,7 @@ internal static class TerminalWindowState
                 window.Top = state.Top;
                 window.FontSize = state.FontSize;
                 window.WindowState = state.WindowState;
+                //window.KeepWrittenText = state.KeepWrittenText;
             }
             catch (Exception ex)
             {
@@ -46,7 +47,7 @@ internal static class TerminalWindowState
     /// Saves window state.
     /// </summary>
     /// <param name="window">Window which properties will be saved.</param>
-    public static void Save(Window window)
+    public static void Save(TerminalWindow window)
     {
         if (GetStateFilePath(window) is string stateFilePath)
         {
@@ -57,7 +58,9 @@ internal static class TerminalWindowState
                                               window.Left,
                                               window.Top,
                                               window.FontSize,
-                                              window.WindowState);
+                                              window.WindowState
+                                              //window.KeepWrittenText
+                                              );
 
                 string json = JsonSerializer.Serialize(state, new JsonSerializerOptions() { WriteIndented = true });
 

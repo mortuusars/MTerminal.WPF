@@ -1,5 +1,4 @@
 ﻿using MTerminal.WPF.ViewModels;
-using System.Windows.Documents;
 
 namespace MTerminal.WPF.Windows;
 
@@ -8,27 +7,18 @@ namespace MTerminal.WPF.Windows;
 /// </summary>
 internal class TerminalWindowControl
 {
-    public TerminalWindow TerminalWindow { get; private set; }
+    internal TerminalWindow TerminalWindow { get; private set; }
     internal TerminalViewModel TerminalViewModel { get; }
 
-    public int BufferCapacity { get => _bufferCapacity; set { _bufferCapacity = value; TerminalWindow.BufferCapacity = value; } }
-    public bool KeepWrittenData { get; set; }
-
-    /// <summary>
-    /// Stored text of the terminal. Used to restore it if window closes and reopens.
-    /// </summary>
-    private IEnumerable<Inline>? _writtenData;
-
-    public TerminalWindowControl()
+    internal TerminalWindowControl()
     {
         TerminalViewModel = new TerminalViewModel();
         TerminalWindow = CreateWindow();
     }
 
     private bool _isWindowClosed;
-    private int _bufferCapacity = 1500;
 
-    public void Show()
+    internal void Show()
     {
         if (_isWindowClosed)
             TerminalWindow = CreateWindow();
@@ -37,31 +27,21 @@ internal class TerminalWindowControl
         _isWindowClosed = false;
     }
 
-    public void Close()
+    internal void Close()
     {
-        try
-        {
-            _writtenData = TerminalWindow.GetInlines();
-            TerminalWindow.Close();
-            _isWindowClosed = true;
-        }
-        catch (Exception) { Terminal.WriteLine("Failed to close Terminal window."); }
+        TerminalWindow.Close();
+        _isWindowClosed = true;
     }
 
-    public void Hide()
-    {
-        try { TerminalWindow.Hide(); }
-        catch (Exception) { Terminal.WriteLine("Failed to hide Terminal window."); }
-    }
+    internal void Hide() => TerminalWindow.Hide();
 
     private TerminalWindow CreateWindow()
     {
+        if (TerminalWindow is not null)
+            TerminalWindow.Closed -= Window_Closed;
+
         TerminalWindow window = new();
 
-        if (KeepWrittenData && _writtenData is not null && _writtenData.Any())
-            window.SetInlines(_writtenData);
-
-        window.BufferCapacity = BufferCapacity;
         window.DataContext = TerminalViewModel;
 
         window.Closed += Window_Closed;
@@ -71,8 +51,5 @@ internal class TerminalWindowControl
     private void Window_Closed(object? sender, EventArgs e)
     {
         _isWindowClosed = true;
-
-        try { _writtenData = TerminalWindow.GetInlines(); }
-        catch (Exception) { Terminal.WriteLine(); }
     }
 }

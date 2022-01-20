@@ -13,13 +13,13 @@ public class TerminalWriter : TextWriter
     /// <summary>
     /// Destination of the writer.
     /// </summary>
-    public IWriterOutput? WriterOutput { get; set; }
+    public IOutput? WriterOutput { get; set; }
 
     /// <summary>
     /// Creates a new instance of the Writer with a writer output to write to.
     /// </summary>
     /// <param name="writerOutput"></param>
-    public TerminalWriter(IWriterOutput writerOutput)
+    public TerminalWriter(IOutput writerOutput)
     {
         WriterOutput = writerOutput;
     }
@@ -30,29 +30,25 @@ public class TerminalWriter : TextWriter
     public TerminalWriter() { }
 
     /// <summary>
-    /// Clears output.
-    /// </summary>
-    public void ClearScreen() => WriterOutput?.ClearScreen();
-    /// <summary>
     /// Writes text of the specified color.
     /// </summary>
     /// <param name="text">Text to write.</param>
     /// <param name="color">Color of the text.</param>
-    public void Write(string text, Color color) => WriterOutput?.Write(text, color);
+    public void Write(string value, Color color)
+    {
+        WriterOutput?.Write(value, color);
+    }
+
     /// <summary>
     /// Writes text of the specified color and moves caret on a new line.
     /// </summary>
     /// <param name="text">Text to write.</param>
     /// <param name="color">Color of the text.</param>
-    public void WriteLine(string text, Color color)
+    public void WriteLine(string value, Color color)
     {
-        Write(text, color);
+        Write(value, color);
         WriteLine();
     }
-    /// <summary>
-    /// Clears last line in the output.
-    /// </summary>
-    public void ClearLastLine() => WriterOutput?.ClearLastLine();
 
     // Overriding only these methods should be enough to be a valid Console output. Other overloads inplemented in base class.
 

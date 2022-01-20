@@ -1,5 +1,6 @@
 ﻿using MTerminal.WPF;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -14,14 +15,15 @@ public partial class App : Application
 
         // Changing window style:
         Terminal.Style.WindowTitle = "Demo Terminal";
-        Terminal.Style.Foreground = Color.FromRgb(31, 194, 85);
+        // Changing the default color of the text:
+        //Terminal.Style.Foreground = Color.FromRgb(31, 194, 85);
 
         // Set Background to custom color:
         //Terminal.Style.Background = new RadialGradientBrush(Color.FromRgb(20, 30, 26), Color.FromRgb(12, 20, 17)) { Center = new Point(0.5, 0.5) };
 
         // Set Background to image:
-        BitmapImage img = new BitmapImage(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Images/terminal_bg.png", UriKind.Absolute));
-        Terminal.Style.Background = new ImageBrush(img);
+        //BitmapImage img = new BitmapImage(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Images/terminal_bg.png", UriKind.Absolute));
+        //Terminal.Style.Background = new ImageBrush(img);
 
         // Set custom font
         //Terminal.Style.FontFamily = new FontFamily(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Fonts/"), "./#Classic Console Neue");
@@ -51,9 +53,23 @@ public partial class App : Application
         
         Terminal.WriteLine("Writing to a Terminal after showing.", Colors.Fuchsia);
 
-        for (int i = 0; i < 20; i++)
+        //for (int i = 0; i < 20; i++)
+        //{
+        //    Terminal.WriteLine("test " + i);
+        //}
+
+        //Task.Run(PrintLines);
+
+        Terminal.Write("WriteOne");
+        Terminal.Write("WriteTwo");
+    }
+
+    public async void PrintLines()
+    {
+        while(true)
         {
-            Terminal.WriteLine("test");
+            Terminal.Write("a");
+            await Task.Delay(200);
         }
     }
 }

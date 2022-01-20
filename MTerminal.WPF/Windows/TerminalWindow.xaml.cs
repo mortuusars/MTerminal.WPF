@@ -1,116 +1,63 @@
 ﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace MTerminal.WPF.Windows;
 
-public partial class TerminalWindow : Window, IWriterOutput
+public partial class TerminalWindow : Window, IOutput
 {
-    public static readonly DependencyProperty AutoScrollOnChangeProperty =
-        DependencyProperty.Register(nameof(AutoScrollOnChange), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(true));
-
-    public static readonly DependencyProperty IsCurrentlyScrollableProperty =
-        DependencyProperty.Register(nameof(IsCurrentlyScrollable), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
-
-    public bool IsCurrentlyScrollable
-    {
-        get { return (bool)GetValue(IsCurrentlyScrollableProperty); }
-        set { SetValue(IsCurrentlyScrollableProperty, value); }
-    }
-
-    public bool AutoScrollOnChange
-    {
-        get { return (bool)GetValue(AutoScrollOnChangeProperty); }
-        set { SetValue(AutoScrollOnChangeProperty, value); }
-    }
-
     public TerminalWindow()
     {
         InitializeComponent();
 
-        Loaded += (s, e) => TerminalWindowState.Load(this);
-        SizeChanged += (s, e) => RecalculateIsDocked();
-        StateChanged += TerminalWindow_StateChanged;
-        MouseWheel += TerminalWindow_MouseWheel;
-        KeyDown += TerminalWindow_KeyDown;
-
-        var timer = new DispatcherTimer();
-        timer.Interval = TimeSpan.FromMilliseconds(300);
-        timer.Tick += WorkingTimer_Tick;
-        timer.Start();
-    }
-
-    private void WorkingTimer_Tick(object? sender, EventArgs e)
-    {
-        if (_scrollToEndQueued && AutoScrollOnChange)
+        Loaded += (s, e) =>
         {
-            OutputScrollViewer.ScrollToEnd();
-            _scrollToEndQueued = false;
-        }
-
-        IsCurrentlyScrollable = OutputScrollViewer.ScrollableHeight > 0.01;
+            TerminalWindowState.Load(this);
+            //if (this.KeepWrittenText)
+                //ConsoleOutput.LoadXamlDocument("doc.xaml");
+        };
+        SizeChanged += (s, e) => RecalculateIsDocked();
+        PreviewMouseWheel += TerminalWindow_PreviewMouseWheel;
+        KeyDown += TerminalWindow_KeyDown;
     }
 
     #region Writing
 
-    public int BufferCapacity { get; set; } = 1500;
+    /// <summary>
+    /// Gets all text that is currently displayed in a console.
+    /// </summary>
+    public string Text { get => ConsoleOutput.GetText(); }
 
-    private bool _scrollToEndQueued;
+    /// <summary>
+    /// Maximum amount lines in a terminal.
+    /// </summary>
+    public int BufferCapacity { get; set; } = 300;
 
-    public void Write(string text)
-    {
-        //if (Output.Inlines.Count > BufferCapacity)
-        //CleanUpInlines();
+    /// <summary>Indicates that written text should be saved and restored on window reopen.</summary>
+    //public bool KeepWrittenText { get => _keepWrittenText; set => _keepWrittenText = value; }
+    //private bool _keepWrittenText = true;
 
-        Output.Write(text);
-        _scrollToEndQueued = true;
-    }
-
-    public void Write(string text, Color color)
-    {
-        //if (Output.Inlines.Count > BufferCapacity)
-        //CleanUpInlines();
-
-        Output.Write(text, color);
-        _scrollToEndQueued = true;
-    }
-
-    public bool IsNewLine() => Output.IsNewLine();
-
-    public void ClearScreen() => Dispatcher.BeginInvoke(() => Output.Inlines.Clear(), null);
-
-    public void ClearLastLine()
-    {
-        this.Dispatcher.Invoke(() =>
-        {
-            Inline[] inlines = Output.Inlines.ToArray();
-            Array.Reverse(inlines);
-
-            List<Inline> lastLineElements = new();
-            foreach (Inline inline in inlines)
-            {
-                lastLineElements.Add(inline);
-                if (inline is Run run && run.Text.Contains('\n'))
-                    break;
-            }
-
-            foreach (Inline inline in lastLineElements)
-            {
-                Output.Inlines.Remove(inline);
-            }
-            _scrollToEndQueued = true;
-        });
-    }
-
-    internal IEnumerable<Inline> GetInlines() => Output.Inlines.ToArray();
-    internal void SetInlines(IEnumerable<Inline> inlines) => Output.Inlines.AddRange(inlines);
+    public void Write(string text) => ConsoleOutput.Write(text);
+    public void Write(string text, Color color) => ConsoleOutput.Write(text, color);
+    public bool IsNewLine() => ConsoleOutput.IsNewLine();
+    public void Clear() => ConsoleOutput.Clear();
+    public void RemoveLastLine() => ConsoleOutput.RemoveLastLine();
 
     #endregion
 
     #region Window - Buttons, Resizing, etc..
+
+    /// <summary>Identifies the <see cref="TerminalWindow.IsDocked"/> dependency property.</summary>
+    public static readonly DependencyProperty IsDockedProperty =
+        DependencyProperty.Register(nameof(IsDocked), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false, OnIsDockedChanged));
+
+    /// <summary>Indicates whether the window is docked to one of the sides of a screen or maximized.</summary>
+    public bool IsDocked
+    {
+        get { return (bool)GetValue(IsDockedProperty); }
+        set { SetValue(IsDockedProperty, value); }
+    }
 
     private void TerminalWindow_KeyDown(object sender, KeyEventArgs e)
     {
@@ -123,11 +70,14 @@ public partial class TerminalWindow : Window, IWriterOutput
         {
             if (e.Key == Key.OemPlus) IncreaseFontSize();
             else if (e.Key == Key.OemMinus) DecreaseFontSize();
+            e.Handled = true;
         }
     }
 
-    private void TerminalWindow_MouseWheel(object sender, MouseWheelEventArgs e)
+    // PreviewMouseWheel to handle wheel event before console's ScrollViewer.
+    private void TerminalWindow_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
+        // Change font size on Ctrl + MouseWheel:
         if (Keyboard.Modifiers == ModifierKeys.Control)
         {
             if (e.Delta > 0) IncreaseFontSize(); //Scroll up
@@ -148,15 +98,6 @@ public partial class TerminalWindow : Window, IWriterOutput
             this.FontSize -= 2;
     }
 
-    public static readonly DependencyProperty IsDockedProperty =
-        DependencyProperty.Register(nameof(IsDocked), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false, OnIsDockedChanged));
-
-    public bool IsDocked
-    {
-        get { return (bool)GetValue(IsDockedProperty); }
-        set { SetValue(IsDockedProperty, value); }
-    }
-
     private void RecalculateIsDocked()
     {
         if (double.IsNaN(Width) || double.IsNaN(Height))
@@ -168,19 +109,11 @@ public partial class TerminalWindow : Window, IWriterOutput
                    Height != RestoreBounds.Height));
     }
 
-    private void TerminalWindow_StateChanged(object? sender, EventArgs e)
-    {
-        if (WindowState == WindowState.Maximized)
-            this.WindowChromeData.GlassFrameThickness = new Thickness(20);
-        else
-            this.WindowChromeData.GlassFrameThickness = new Thickness(0, 0, 0, 1);
-    }
-
     private static void OnIsDockedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         TerminalWindow window = (TerminalWindow)d;
 
-        // Correct header area when snapping and unsnapping window
+        // Adjust header area when snapping and unsnapping window
         if (window.WindowState == WindowState.Maximized)
             window.WindowChromeData.CaptionHeight = window.HeaderRow.Height.Value + window.Root.BorderThickness.Top + 2;
         else
@@ -190,6 +123,8 @@ public partial class TerminalWindow : Window, IWriterOutput
     protected override void OnClosing(CancelEventArgs e)
     {
         TerminalWindowState.Save(this);
+        //if (this.KeepWrittenText)
+            //ConsoleOutput.SaveXamlDocument("doc.xaml");
         base.OnClosing(e);
     }
 
@@ -204,5 +139,4 @@ public partial class TerminalWindow : Window, IWriterOutput
     }
 
     #endregion
-
 }

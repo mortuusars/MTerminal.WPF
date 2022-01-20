@@ -14,25 +14,18 @@ public static class Terminal
     /// </summary>
     public static TerminalWriter Out { get; }
 
-    /// <summary>
-    /// Provides access to Terminal Commands.
-    /// </summary>
+    /// <summary>Provides access to Terminal Commands.</summary>
     public static Commands Commands { get; }
 
-    /// <summary>
-    /// Collection of properties that can be changed to alter Terminal window appearance.
-    /// </summary>
+    /// <summary>Collection of properties that can be changed to alter Terminal window appearance.</summary>
     public static TerminalStyle Style { get; }
 
-    /// <summary>
-    /// Controls whether written text will be kept when window is closed and reopened again.
-    /// </summary>
-    public static bool KeepWrittenDataBetweenWindows { get => _windowControl.KeepWrittenData; set => _windowControl.KeepWrittenData = value; }
+    /// <summary>Controls whether written text will be kept when window is closed and reopened again.</summary>
+    //public static bool KeepWrittenDataBetweenWindows { get => _windowControl.KeepWrittenData; set => _windowControl.KeepWrittenData = value; }
 
-    /// <summary>
-    /// Version of the Terminal.
-    /// </summary>
+    /// <summary>Version of the Terminal.</summary>
     public static readonly Version Version = new Version("0.2.0");
+
 
     static Terminal()
     {
@@ -43,13 +36,31 @@ public static class Terminal
     }
 
     #region Window
+    internal static TerminalWindow TerminalWindow { get => _windowControl.TerminalWindow; }
 
     private static readonly TerminalWindowControl _windowControl;
 
     /// <summary>
-    /// Controls the capacity of a text "buffer". Every write is 1 element. When the limit is reached - oldest elements would be removed.<br/>
+    /// Controls the maximum amount of lines of a text "buffer". When the limit is reached - oldest lines will be removed.<br>Default is 300.</br>
     /// </summary>
-    public static int BufferCapacity { get => _windowControl.BufferCapacity; set { _windowControl.BufferCapacity = value; } }
+    /// <exception cref="ArgumentOutOfRangeException">If value is less or equal to 0.</exception>
+    public static int BufferCapacity
+    {
+        get => _bufferCapacity;
+        set
+        {
+            if (value < 1)
+                throw new ArgumentOutOfRangeException(nameof(value));
+            _bufferCapacity = value; 
+            TerminalWindow.BufferCapacity = value;
+        }
+    }
+    private static int _bufferCapacity = 300;
+
+    /// <summary>
+    /// Indicates whether Terminal window should save its text when closed and restore it when opened again.
+    /// </summary>
+    public static bool KeepWrittenTextWhenClosed { get; set; } = true;
 
     /// <summary>
     /// Opens Terminal window.
@@ -68,25 +79,31 @@ public static class Terminal
 
     #region Writing
 
+    public static string Text { get => TerminalWindow.Text; }
+
     /// <summary>
     /// Writes a message to the Terminal Output.
     /// </summary>
     /// <param name="message">Message to write.</param>
     public static void Write(string message) => Out.Write(message);
+
     /// <summary>
     /// Writes a message of a specified color to the Terminal Output.
     /// </summary>
     /// <param name="message">Message to write.</param>
     public static void Write(string message, Color color) => Out.Write(message, color);
+
     /// <summary>
     /// Writes a new line to the output.
     /// </summary>
     public static void WriteLine() => Out.WriteLine();
+
     /// <summary>
     /// Writes a message followed by a new line to the output.
     /// </summary>
     /// <param name="message">Message to write.</param>
     public static void WriteLine(string message) => Out.WriteLine(message);
+
     /// <summary>
     /// Writes a colored message followed by a new line to the output.
     /// </summary>
@@ -96,6 +113,7 @@ public static class Terminal
     /// </summary>
     /// <param name="value">Object to write.</param>
     public static void WriteLine(object value) => Out.WriteLine(value);
+
     /// <summary>
     /// Writes a colored string representation of an object to the Terminal Output.
     /// </summary>
@@ -103,15 +121,16 @@ public static class Terminal
     public static void WriteLine(object? value, Color color) => Out.WriteLine(value?.ToString() ?? "null", color);
 
     /// <summary>
-    /// Clears last line of the output.
-    /// </summary>
-    public static void ClearLastLine() => Out.ClearLastLine();
-    /// <summary>
     /// Clears Terminal screen.
     /// </summary>
-    public static void Clear() => Out.ClearScreen();
+    public static void Clear() => TerminalWindow.Clear();
+    /// <summary>
+    /// Clears last line of the output.
+    /// </summary>
+    public static void ClearLastLine() => TerminalWindow.RemoveLastLine();
 
-    public static bool IsNewLine() => _windowControl.TerminalWindow.IsNewLine();
+
+    public static bool IsNewLine() => TerminalWindow.IsNewLine();
 
     #endregion
 }

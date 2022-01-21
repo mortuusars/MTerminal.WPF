@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -11,15 +12,23 @@ public partial class TerminalWindow : Window, IOutput
     {
         InitializeComponent();
 
-        Loaded += (s, e) =>
-        {
-            TerminalWindowState.Load(this);
-            //if (this.KeepWrittenText)
-                //ConsoleOutput.LoadXamlDocument("doc.xaml");
-        };
+        Loaded += TerminalWindow_Loaded;
+        
         SizeChanged += (s, e) => RecalculateIsDocked();
         PreviewMouseWheel += TerminalWindow_PreviewMouseWheel;
         KeyDown += TerminalWindow_KeyDown;
+
+        
+    }
+
+    private void TerminalWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        TerminalWindowState.Load(this);
+
+        // Bind to view model property, it's easier than setting value manually every time window is created (and on every change too).
+        var binding = new Binding("BufferCapacity");
+        binding.Source = DataContext;
+        BindingOperations.SetBinding(this, BufferCapacityProperty, binding);
     }
 
     #region Writing
@@ -29,17 +38,20 @@ public partial class TerminalWindow : Window, IOutput
     /// </summary>
     public string Text { get => ConsoleOutput.GetText(); }
 
-    /// <summary>
-    /// Maximum amount lines in a terminal.
-    /// </summary>
-    public int BufferCapacity { get; set; } = 300;
+    public static readonly DependencyProperty BufferCapacityProperty =
+        DependencyProperty.Register(nameof(BufferCapacity), typeof(int), typeof(TerminalWindow), new PropertyMetadata(300));
 
-    /// <summary>Indicates that written text should be saved and restored on window reopen.</summary>
-    //public bool KeepWrittenText { get => _keepWrittenText; set => _keepWrittenText = value; }
-    //private bool _keepWrittenText = true;
+    public int BufferCapacity
+    {
+        get { return (int)GetValue(BufferCapacityProperty); }
+        set { SetValue(BufferCapacityProperty, value); }
+    }
 
     public void Write(string text) => ConsoleOutput.Write(text);
     public void Write(string text, Color color) => ConsoleOutput.Write(text, color);
+    public void WriteLine() => ConsoleOutput.Write(Environment.NewLine);
+    public void WriteLine(string text) => ConsoleOutput.Write(text + Environment.NewLine);
+    public void WriteLine(string text, Color color) => ConsoleOutput.Write(text + Environment.NewLine, color);
     public bool IsNewLine() => ConsoleOutput.IsNewLine();
     public void Clear() => ConsoleOutput.Clear();
     public void RemoveLastLine() => ConsoleOutput.RemoveLastLine();
@@ -124,7 +136,7 @@ public partial class TerminalWindow : Window, IOutput
     {
         TerminalWindowState.Save(this);
         //if (this.KeepWrittenText)
-            //ConsoleOutput.SaveXamlDocument("doc.xaml");
+        //ConsoleOutput.SaveXamlDocument("doc.xaml");
         base.OnClosing(e);
     }
 

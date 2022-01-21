@@ -12,8 +12,8 @@ public class TerminalStyle
     /// </summary>
     public string WindowTitle
     {
-        get => _terminalViewModel.Title;
-        set => _terminalViewModel.Title = value;
+        get => Terminal.TerminalViewModel.Title;
+        set => Terminal.TerminalViewModel.Title = value;
     }
 
     /// <summary>
@@ -21,8 +21,8 @@ public class TerminalStyle
     /// </summary>
     public Color Foreground
     {
-        get => _terminalViewModel.Foreground.Color;
-        set => _terminalViewModel.Foreground = new SolidColorBrush(value);
+        get => Terminal.TerminalViewModel.Foreground.Color;
+        set => Terminal.TerminalViewModel.Foreground = new SolidColorBrush(value);
     }
 
     /// <summary>
@@ -30,8 +30,8 @@ public class TerminalStyle
     /// </summary>
     public Brush Background
     {
-        get => _terminalViewModel.Background;
-        set => _terminalViewModel.Background = value;
+        get => Terminal.TerminalViewModel.Background;
+        set => Terminal.TerminalViewModel.Background = value;
     }
 
     /// <summary>
@@ -39,14 +39,8 @@ public class TerminalStyle
     /// </summary>
     public FontFamily FontFamily
     {
-        get => _terminalViewModel.FontFamily;
-        set => _terminalViewModel.FontFamily = value;
+        get => Terminal.TerminalViewModel.FontFamily;
+        set => Terminal.TerminalViewModel.FontFamily = value;
     }
 
-    private readonly TerminalViewModel _terminalViewModel;
-    
-    internal TerminalStyle(TerminalViewModel terminalViewModel)
-    {
-        _terminalViewModel = terminalViewModel;
-    }
 }

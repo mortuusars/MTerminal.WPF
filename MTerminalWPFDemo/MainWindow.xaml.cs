@@ -28,12 +28,12 @@ namespace MTerminalWPFDemo
 
         private void ButtonShow_Click(object sender, RoutedEventArgs e)
         {
-            Terminal.ShowWindow();
+            Terminal.Show();
         }
 
         private void ButtonHide_Click(object sender, RoutedEventArgs e)
         {
-            Terminal.CloseWindow();
+            Terminal.Close();
         }
     }
 }

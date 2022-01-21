@@ -5,7 +5,7 @@ namespace MTerminal.WPF.ViewModels;
 
 internal class TerminalViewModel : ObservableObject
 {
-    public CommandsViewModel CommandsViewModel { get; set; }
+    public CommandsViewModel CommandsViewModel { get; set; } = new CommandsViewModel();
 
     public string Title { get => _title; set { _title = value; OnPropertyChanged(nameof(Title)); } }
     private string _title;
@@ -19,8 +19,6 @@ internal class TerminalViewModel : ObservableObject
             _background = value;
             _background.Freeze();
             OnPropertyChanged(nameof(Background));
-            if (value is ImageBrush brush)
-                ImageBackground = brush;
         }
     }
 
@@ -38,11 +36,17 @@ internal class TerminalViewModel : ObservableObject
         set { _fontFamily = value; OnPropertyChanged(nameof(FontFamily)); }
     }
 
-    private ImageBrush? _imageBackground;
-    public ImageBrush? ImageBackground
+    private int _bufferCapacity;
+    public int BufferCapacity
     {
-        get => _imageBackground;
-        set { _imageBackground = value; OnPropertyChanged(nameof(ImageBackground)); }
+        get => _bufferCapacity;
+        set
+        {
+            if (value < 1)
+                throw new ArgumentOutOfRangeException(nameof(value));
+            _bufferCapacity = value;
+            OnPropertyChanged(nameof(BufferCapacity));
+        }
     }
 
     public TerminalViewModel()
@@ -53,5 +57,6 @@ internal class TerminalViewModel : ObservableObject
         _background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#161616"));
         _foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ccc"));
         _fontFamily = new FontFamily("Consolas");
+        _bufferCapacity = 300;
     }
 }

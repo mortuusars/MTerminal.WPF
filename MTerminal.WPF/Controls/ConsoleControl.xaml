@@ -8,6 +8,7 @@
     x:Name="consoleControl"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    Focusable="False"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -26,12 +27,14 @@
         BorderBrush="{Binding ElementName=consoleControl, Path=BorderBrush}"
         BorderThickness="{Binding ElementName=consoleControl, Path=BorderThickness}"
         CaretBrush="{Binding ElementName=consoleControl, Path=CaretBrush}"
+        Cursor="{Binding ElementName=consoleControl, Path=Cursor}"
         FontFamily="{Binding ElementName=consoleControl, Path=FontFamily}"
         FontSize="{Binding ElementName=consoleControl, Path=FontSize}"
         Foreground="{Binding ElementName=consoleControl, Path=Foreground}"
         IsReadOnly="True"
         IsReadOnlyCaretVisible="False"
-        ScrollViewer.VerticalScrollBarVisibility="Auto">
+        ScrollViewer.VerticalScrollBarVisibility="Auto"
+        SelectionBrush="#bbffffff">
         <RichTextBox.Resources>
             <Style TargetType="{x:Type Paragraph}">
                 <Setter Property="Margin" Value="0" />

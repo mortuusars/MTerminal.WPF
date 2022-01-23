@@ -1,5 +1,6 @@
 ﻿using MTerminal.WPF;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -35,7 +36,7 @@ public partial class App : Application
         //Terminal.Style.Foreground = Color.FromRgb(31, 194, 85);
 
         // Set Background to custom color:
-        //Terminal.Style.Background = new RadialGradientBrush(Color.FromRgb(20, 30, 26), Color.FromRgb(12, 20, 17)) { Center = new Point(0.5, 0.5) };
+        //Terminal.Style.Background = new RadialGradientBrush(Color.FromRgb(22, 40, 37), Color.FromRgb(10, 20, 16)) { Center = new Point(0.5, 0.5), RadiusX=0.8, RadiusY=1.2 };
 
         // Set Background to image:
         //BitmapImage img = new BitmapImage(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Images/terminal_bg.png", UriKind.Absolute));
@@ -50,14 +51,23 @@ public partial class App : Application
         Terminal.Commands.Add(new TerminalCommand("crash")
         {
             Description = "[message] | Tries to crash the app",
-            Action = (p) => throw new Exception(p)
-        });
+            Action = (args) => throw new Exception(string.Join(' ', args)),
+        }
+        .AddAlias("throw")
+        .AddAlias("fail"));
 
         Terminal.Commands.Add(new TerminalCommand("exit")
         {
-            Description = "Shutdowns the app",
+            Description = "Exits the app",
             Action = (_) => Shutdown()
         });
+
+        Terminal.Commands.Add(new TerminalCommand("write", "", (args) => Terminal.WriteLine(string.Join(' ', args))));
+        Terminal.Commands.Add(new TerminalCommand("find", "", (args) => 
+        {
+            var cmd = Terminal.Commands.Find(string.Join(' ', args));
+            Terminal.WriteLine(cmd, Colors.AntiqueWhite);
+        }));
 
         Terminal.Commands.Add(new TerminalCommand("close", "", (_) => Terminal.Close()));
         Terminal.Commands.Add(new TerminalCommand("hide", "", (_) => Terminal.Hide()));
@@ -75,14 +85,5 @@ public partial class App : Application
         Console.SetOut(Terminal.Out);
         Console.WriteLine("Written from a default console!");
         //Console.Clear();  - IOException. Some System.Console methods fail when output is redirected.
-    }
-
-    public async void PrintLines()
-    {
-        while(true)
-        {
-            Terminal.Write("a");
-            await Task.Delay(200);
-        }
     }
 }

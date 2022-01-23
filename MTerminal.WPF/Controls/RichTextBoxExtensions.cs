@@ -23,17 +23,4 @@ internal static class RichTextBoxExtensions
     {
         return rtb.Document.ContentEnd;
     }
-
-    /// <summary>
-    /// Gets the value indicating whether caret is ona new line (next write will be on a new line).
-    /// </summary>
-    public static bool IsNewLine(this RichTextBox rtb)
-    {
-        Block lastBlock = rtb.Document.Blocks.LastBlock;
-        if (lastBlock is null)
-            return true; // No blocks in a document means no text. Ofc it's a new line. 
-
-        TextRange range = new(lastBlock.ContentStart, lastBlock.ContentEnd);
-        return range.Text.EndsWith("\n");
-    }
 }

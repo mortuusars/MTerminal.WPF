@@ -116,12 +116,14 @@ public partial class ConsoleControl : UserControl
     /// </summary>
     /// <param name="value">Text to write.</param>
     /// <param name="color">Color of the text.</param>
+    
     public void Write(string value, Color color) => RunOnUIDispatcher(() => Write(value, new SolidColorBrush(color)));
     /// <summary>
     /// Writes a string to the console.<br>Executed on a UI thread.</br>
     /// </summary>
     /// <param name="value">Text to write.</param>
     public void Write(string value) => RunOnUIDispatcher(() => Write(value, Foreground));
+    
     private void Write(string value, Brush brush)
     {
         var range = new TextRange(console.GetEndPointer(), console.GetEndPointer())
@@ -167,10 +169,10 @@ public partial class ConsoleControl : UserControl
             console.Document.Blocks.Remove(adj);
         });
     }
+    
     /// <summary>Scrolls console to the end, so the last written text is visible.<br>Executed on a UI thread.</br></summary>
     public void ScrollToEnd() => RunOnUIDispatcher(() => console.ScrollToVerticalOffset(double.MaxValue));
-    /// <summary>Is caret at the start of an empty line.<br>Executed on a UI thread.</br></summary>
-    public bool IsNewLine() => RunOnUIDispatcher(() => console.IsNewLine());
+    
     /// <summary>Clears all text in a console.<br>Executed on a UI thread.</br></summary>
     public void Clear() => RunOnUIDispatcher(() => console.Document.Blocks.Clear());
 

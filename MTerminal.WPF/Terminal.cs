@@ -1,4 +1,5 @@
-﻿using MTerminal.WPF.ViewModels;
+﻿using MTerminal.WPF.Commands;
+using MTerminal.WPF.ViewModels;
 using MTerminal.WPF.Windows;
 using System.Windows.Media;
 
@@ -14,15 +15,13 @@ public static class Terminal
     /// <summary>Can be set as output of a <see cref="Console"/> by using <see cref="Console.SetOut(System.IO.TextWriter)"/>.</summary>
     public static TerminalWriter Out { get; }
     /// <summary>Provides access to Terminal Commands.</summary>
-    public static Commands Commands { get; }
+    public static CommandRegistry Commands { get; }
     /// <summary>Collection of properties that can be changed to alter Terminal window appearance.</summary>
     public static TerminalStyle Style { get; }
 
-    internal static IOutput? Output { get => Window; }
-
     static Terminal()
     {
-        Commands = new Commands();
+        Commands = new CommandRegistry();
         Style = new TerminalStyle();
         Out = new TerminalWriter();
 
@@ -92,18 +91,49 @@ public static class Terminal
     /// Writes a message to the Terminal Output.
     /// </summary>
     /// <param name="message">Message to write.</param>
-    public static void Write(string message) => Window?.Write(message);
+    public static void Write(string message)
+    {
+        Window?.Write(message);
+    }
+
+    /// <summary>
+    /// Writes text of the specified color.
+    /// </summary>
+    /// <param name="value">Text to write.</param>
+    /// <param name="color">Color of the text.</param>
+    public static void Write(string value, Color color)
+    {
+        Window?.Write(value, color);
+    }
 
     /// <summary>
     /// Writes a new line to the output.
     /// </summary>
-    public static void WriteLine() => Window?.WriteLine();
+    public static void WriteLine()
+    {
+        Window?.Write(Environment.NewLine);
+    }
 
     /// <summary>
     /// Writes a message followed by a new line to the output.
     /// </summary>
-    /// <param name="message">Message to write.</param>
-    public static void WriteLine(string message) => Window?.WriteLine(message);
+    /// <param name="value">Message to write.</param>
+    public static void WriteLine(string value)
+    {
+        Write(value);
+        WriteLine();
+    }
+
+    /// <summary>
+    /// Writes text of the specified color and moves caret to a new line.
+    /// </summary>
+    /// <param name="value">Text to write.</param>
+    /// <param name="color">Color of the text.</param>
+    public static void WriteLine(string value, Color color)
+    {
+        Write(value, color);
+        WriteLine();
+    }
 
     /// <summary>
     /// Writes a colored message followed by a new line to the output.
@@ -112,40 +142,37 @@ public static class Terminal
     /// Writes a string representation of an object to the Terminal Output.
     /// </summary>
     /// <param name="value">Object to write.</param>
-    public static void WriteLine(object value) => Window?.WriteLine(value?.ToString() ?? "null");
+    public static void WriteLine(object value)
+    {
+        WriteLine(value?.ToString() ?? "null");
+    }
 
     /// <summary>
     /// Writes a colored string representation of an object to the Terminal Output.
     /// </summary>
     /// <param name="value">Object to write.</param>
-    public static void WriteLine(object? value, Color color) => Window?.WriteLine(value?.ToString() ?? "null", color);
+    public static void WriteLine(object? value, Color color)
+    {
+        WriteLine(value?.ToString() ?? "null", color);
+    }
 
+    /// <summary>Clears Terminal screen.</summary>
+    public static void Clear()
+    {
+        Window?.Clear();
+    }
 
-    /// <summary>
-    /// Writes text of the specified color.
-    /// </summary>
-    /// <param name="value">Text to write.</param>
-    /// <param name="color">Color of the text.</param>
-    public static void Write(string value, Color color) => Window?.Write(value, color);
+    /// <summary>Clears last line of the output.</summary>
+    public static void ClearLastLine()
+    {
+        Window?.RemoveLastLine();
+    }
 
-    /// <summary>
-    /// Writes text of the specified color and moves caret to a new line.
-    /// </summary>
-    /// <param name="value">Text to write.</param>
-    /// <param name="color">Color of the text.</param>
-    public static void WriteLine(string value, Color color) => Window?.WriteLine(value, color);
-
-    /// <summary>
-    /// Clears Terminal screen.
-    /// </summary>
-    public static void Clear() => Window?.Clear();
-    /// <summary>
-    /// Clears last line of the output.
-    /// </summary>
-    public static void ClearLastLine() => Window?.RemoveLastLine();
-
-
-    public static bool IsNewLine() => Window?.IsNewLine() ?? false;
+    /// <summary>Indicates that next write will be on a new line.</summary>
+    public static bool IsNewLine()
+    {
+        return Text is not null && (Text.Length == 0 || Text.EndsWith(Environment.NewLine));
+    }
 
     #endregion
 }

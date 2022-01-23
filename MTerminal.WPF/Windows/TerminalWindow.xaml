@@ -8,6 +8,7 @@
     xmlns:local="clr-namespace:MTerminal.WPF.Windows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="clr-namespace:MTerminal.WPF.ViewModels"
+    xmlns:wpf="clr-namespace:MTerminal.WPF"
     x:Name="window"
     Title="{Binding Title}"
     Width="800"
@@ -15,7 +16,7 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:TerminalViewModel,
                                      IsDesignTimeCreatable=True}"
     d:FontFamily="Consolas"
-    Background="{Binding Background}"
+    Background="Black"
     FocusManager.FocusedElement="{Binding ElementName=CommandBox}"
     FontFamily="{Binding FontFamily}"
     FontSize="16"
@@ -31,7 +32,7 @@
             x:Name="WindowChromeData"
             CaptionHeight="23"
             CornerRadius="0"
-            GlassFrameThickness="0 0 0 1"
+            GlassFrameThickness="8"
             NonClientFrameEdges="None"
             ResizeBorderThickness="10" />
     </WindowChrome.WindowChrome>
@@ -248,21 +249,42 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <ScrollViewer Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Visible" />
 
             <Rectangle
+                x:Name="BG"
+                Grid.Row="1"
+                Fill="{Binding Background}"
+                SnapsToDevicePixels="False"
+                UseLayoutRounding="False">
+                <!--<Rectangle.Effect>
+                    <wpf:NoiseEffect Ratio="1" />
+                </Rectangle.Effect>-->
+            </Rectangle>
+
+            <!--<Image Grid.Row="1" Source="../Resources/Images/shadow.png"
+                   Height="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=60}"
+                   Stretch="Fill"
+                   Margin="0 0 0 0"
+                   VerticalAlignment="Bottom"
+                   Opacity="1"/>-->
+
+            <!--<Rectangle
                 x:Name="BottomDarken"
-                Grid.Row="2"
+                Grid.Row="1"
                 Height="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=70}"
                 VerticalAlignment="Bottom"
-                d:Height="60">
+                Opacity="0.3"
+                d:Height="60"
+                Visibility="Collapsed">
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                         <GradientStop Offset="0" Color="#00000000" />
-                        <GradientStop Offset="1" Color="#40000000" />
+                        <GradientStop Offset="0.5" Color="#40000000" />
+                        <GradientStop Offset="0.75" Color="#90000000" />
+                        <GradientStop Offset="1" Color="#ff000000" />
                     </LinearGradientBrush>
                 </Rectangle.Fill>
-            </Rectangle>
+            </Rectangle>-->
 
             <!--  HEADER  -->
             <Border
@@ -421,25 +443,31 @@
                     x:Name="ConsoleOutput"
                     Margin="0,0,0,14"
                     BorderThickness="0"
+                    Cursor="Arrow"
                     FontSize="{Binding FontSize, ElementName=window}"
                     Foreground="{Binding Foreground}" />
 
                 <!--  COMMAND BOX  -->
-                <Grid Grid.Row="1">
+                <Grid
+                    x:Name="CommandRow"
+                    Grid.Row="1"
+                    Background="Transparent"
+                    Cursor="IBeam">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
 
                     <!--  Arrow Symbol  -->
                     <Viewbox
                         x:Name="CommandIndicatorBox"
-                        Width="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=3}"
-                        Height="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=3}"
+                        Width="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=1}"
+                        Height="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=1}"
                         Margin="6,0"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Focusable="False">
                         <Path
+                            x:Name="CommandIndicator"
                             Width="20"
                             Height="28"
                             Data="M 4,4 L 16,14 L 4,24"
@@ -447,8 +475,88 @@
                             StrokeEndLineCap="Round"
                             StrokeLineJoin="Round"
                             StrokeStartLineCap="Round"
-                            StrokeThickness="5" />
+                            StrokeThickness="5">
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Setter Property="Opacity" Value="0.6" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, ElementName=CommandRow}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            To="1"
+                                                            Duration="0:0:0.15">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <SineEase EasingMode="EaseInOut" />
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            To="0.6"
+                                                            Duration="0:0:0.4">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <SineEase EasingMode="EaseInOut" />
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsFocused, ElementName=CommandBox}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            To="1"
+                                                            Duration="0:0:0.15">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <SineEase EasingMode="EaseInOut" />
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            To="0.6"
+                                                            Duration="0:0:0.4">
+                                                            <DoubleAnimation.EasingFunction>
+                                                                <SineEase EasingMode="EaseInOut" />
+                                                            </DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
                     </Viewbox>
+
+                    <TextBlock
+                        x:Name="AutocompleteSuggestion"
+                        Grid.Column="1"
+                        Padding="8,7,7,7"
+                        VerticalAlignment="Center"
+                        d:Text="help asd"
+                        Focusable="False"
+                        FontSize="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=2}"
+                        Foreground="{Binding Foreground}"
+                        Opacity="0.4"
+                        Text="{Binding CommandsViewModel.AutocompleteSuggestion}" />
 
                     <!--  Command Box  -->
                     <TextBox
@@ -462,32 +570,42 @@
                         CaretBrush="{Binding Foreground}"
                         FontSize="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=2}"
                         Foreground="{Binding Foreground}"
+                        IsInactiveSelectionHighlightEnabled="True"
                         SelectionBrush="#bbffffff"
-                        Text="{Binding CommandsViewModel.CommandText}">
+                        Text="{Binding CommandsViewModel.CommandText, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}">
                         <TextBox.InputBindings>
                             <KeyBinding
                                 Key="Return"
                                 Command="{Binding CommandsViewModel.ExecuteCommand}"
                                 CommandParameter="{Binding ElementName=CommandBox, Path=Text}" />
-                            <KeyBinding Key="Up" Command="{Binding FillPreviousUpCommandCommand}" />
-                            <KeyBinding Key="Down" Command="{Binding FillPreviousDownCommandCommand}" />
+                            <KeyBinding Key="Up" Command="{Binding CommandsViewModel.HistoryUpCommand}" />
+                            <KeyBinding Key="Down" Command="{Binding CommandsViewModel.HistoryDownCommand}" />
                             <KeyBinding
                                 Key="Tab"
                                 Command="{Binding CommandsViewModel.AutocompleteCommand}"
                                 CommandParameter="{Binding ElementName=CommandBox, Path=Text}" />
+                            <KeyBinding
+                                Key="Tab"
+                                Command="{Binding CommandsViewModel.AutocompleteBackwardsCommand}"
+                                CommandParameter="{Binding ElementName=CommandBox, Path=Text}"
+                                Modifiers="Ctrl" />
                         </TextBox.InputBindings>
+
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Opacity" Value="1" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsFocused" Value="False">
+                                        <Setter Property="Opacity" Value="0.7" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
                     </TextBox>
 
-                    <!--
-                        <ToggleButton
-                        Grid.Column="2"
-                        Padding="10,0"
-                        Background="{StaticResource Header}"
-                        Content="S"
-                        Foreground="{Binding Foreground}"
-                        IsChecked="{Binding ElementName=window, Path=AutoScrollOnChange}"
-                        Visibility="{Binding ElementName=window, Path=IsCurrentlyScrollable, Converter={StaticResource BoolToVisibility}}" />
-                    -->
+
+
+
                 </Grid>
             </Grid>
         </Grid>

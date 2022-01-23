@@ -7,8 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="MTerminal.Tests" />
+	</ItemGroup>
+	
   <ItemGroup>
     <None Remove="Resources\Images\console.png" />
+    <None Remove="Resources\Images\shadow.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +22,7 @@
 
   <ItemGroup>
     <Resource Include="Resources\Images\console.png" />
+    <Resource Include="Resources\Images\shadow.png" />
   </ItemGroup>
 
 </Project>

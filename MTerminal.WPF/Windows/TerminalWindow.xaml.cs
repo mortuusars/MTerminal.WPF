@@ -6,19 +6,20 @@ using System.Windows.Media;
 
 namespace MTerminal.WPF.Windows;
 
-public partial class TerminalWindow : Window, IOutput
+public partial class TerminalWindow : Window
 {
     public TerminalWindow()
     {
         InitializeComponent();
 
         Loaded += TerminalWindow_Loaded;
-        
+        Activated += (s, e) => Keyboard.Focus(CommandBox);
         SizeChanged += (s, e) => RecalculateIsDocked();
         PreviewMouseWheel += TerminalWindow_PreviewMouseWheel;
-        KeyDown += TerminalWindow_KeyDown;
+        PreviewKeyDown += TerminalWindow_PreviewKeyDown;
 
-        
+        CommandRow.MouseLeftButtonDown += (s, e) => { Keyboard.Focus(CommandBox); e.Handled = true; };
+        CommandBox.TargetUpdated += (s, e) => CommandBox.CaretIndex = int.MaxValue;
     }
 
     private void TerminalWindow_Loaded(object sender, RoutedEventArgs e)
@@ -39,7 +40,13 @@ public partial class TerminalWindow : Window, IOutput
     public string Text { get => ConsoleOutput.GetText(); }
 
     public static readonly DependencyProperty BufferCapacityProperty =
-        DependencyProperty.Register(nameof(BufferCapacity), typeof(int), typeof(TerminalWindow), new PropertyMetadata(300));
+        DependencyProperty.Register(nameof(BufferCapacity), typeof(int), typeof(TerminalWindow), new PropertyMetadata(300, OnBufferCapacityChanged));
+
+    private static void OnBufferCapacityChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var window = (TerminalWindow)d;
+        window.ConsoleOutput.BufferCapacity = (int)e.NewValue;
+    }
 
     public int BufferCapacity
     {
@@ -49,10 +56,6 @@ public partial class TerminalWindow : Window, IOutput
 
     public void Write(string text) => ConsoleOutput.Write(text);
     public void Write(string text, Color color) => ConsoleOutput.Write(text, color);
-    public void WriteLine() => ConsoleOutput.Write(Environment.NewLine);
-    public void WriteLine(string text) => ConsoleOutput.Write(text + Environment.NewLine);
-    public void WriteLine(string text, Color color) => ConsoleOutput.Write(text + Environment.NewLine, color);
-    public bool IsNewLine() => ConsoleOutput.IsNewLine();
     public void Clear() => ConsoleOutput.Clear();
     public void RemoveLastLine() => ConsoleOutput.RemoveLastLine();
 
@@ -71,18 +74,25 @@ public partial class TerminalWindow : Window, IOutput
         set { SetValue(IsDockedProperty, value); }
     }
 
-    private void TerminalWindow_KeyDown(object sender, KeyEventArgs e)
+    private void TerminalWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Tab)
+        if (e.Key == Key.Tab && !CommandBox.IsFocused)
         {
             e.Handled = true;
             CommandBox.Focus();
         }
         else if (Keyboard.Modifiers == ModifierKeys.Control)
         {
-            if (e.Key == Key.OemPlus) IncreaseFontSize();
-            else if (e.Key == Key.OemMinus) DecreaseFontSize();
-            e.Handled = true;
+            if (e.Key == Key.OemPlus)
+            {
+                IncreaseFontSize();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.OemMinus)
+            {
+                DecreaseFontSize();
+                e.Handled = true;
+            }
         }
     }
 
@@ -100,13 +110,13 @@ public partial class TerminalWindow : Window, IOutput
 
     private void IncreaseFontSize()
     {
-        if (FontSize < 60)
+        if (FontSize < 64)
             this.FontSize += 2;
     }
 
     private void DecreaseFontSize()
     {
-        if (FontSize > 4)
+        if (FontSize > 12)
             this.FontSize -= 2;
     }
 

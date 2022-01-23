@@ -1,4 +1,5 @@
 using MTerminal.WPF;
+using MTerminal.WPF.Commands;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -7,7 +8,7 @@ namespace MTerminal.Tests
 {
     public class CommandsTests
     {
-        public Commands _sut = new Commands();
+        public CommandRegistry _sut = new CommandRegistry();
 
         [Fact]
         public void AddShouldAddCommandToList()

@@ -3,65 +3,58 @@
 internal static class CommandAutocomplete
 {
     /// <summary>
-    /// Gets the first command that matches input string, or starts with input string.
+    /// Gets the first string that matches input string, or starts with input string.
     /// </summary>
-    /// <param name="commands">Collection of commands</param>
-    /// <returns>Matched command or empty command if nothing matched.</returns>
-    internal static TerminalCommand Match(string input, IEnumerable<TerminalCommand> commands)
+    /// <returns>Matched string or empty string if nothing matched.</returns>
+    internal static string Match(string input, IEnumerable<string> collection)
     {
-        if (string.IsNullOrWhiteSpace(input) || commands is null || commands.Count() == 0)
-            return TerminalCommand.Empty;
+        if (string.IsNullOrWhiteSpace(input) || collection is null || !collection.Any())
+            return string.Empty;
 
-        string startingChars = input.Trim();
-        return commands.FirstOrDefault(c => c.Command.StartsWith(startingChars), TerminalCommand.Empty);
+        return collection.FirstOrDefault(c => c.StartsWith(input.Trim()), string.Empty);
     }
 
     /// <summary>
-    /// Gets the first alphabetically ordered command that matches input string, or starts with input string.
+    /// Gets the first alphabetically ordered string that matches input string, or starts with input string.
     /// </summary>
-    /// <param name="commands">Collection of commands</param>
-    /// <returns>Matched command or empty command if nothing matched.</returns>
-    internal static TerminalCommand MatchOrdered(string input, IEnumerable<TerminalCommand> commands)
+    /// <returns>Matched string or empty string if nothing matched.</returns>
+    internal static string MatchOrdered(string input, IEnumerable<string> collection)
     {
-        if (string.IsNullOrWhiteSpace(input) || commands is null || commands.Count() == 0)
-            return TerminalCommand.Empty;
+        if (string.IsNullOrWhiteSpace(input) || collection is null || !collection.Any())
+            return string.Empty;
 
-        return commands.OrderBy(c => c.Command).FirstOrDefault(c => c.Command.StartsWith(input), TerminalCommand.Empty);
+        return collection.OrderBy(c => c).FirstOrDefault(c => c.StartsWith(input), string.Empty);
     }
 
     /// <summary>
     /// Gets the next alphabetically ordered command that matches input string, or starts with input string.
     /// </summary>
-    /// <param name="commands">Collection of commands</param>
-    /// <returns>Matched command or empty command if nothing matched.</returns>
-    internal static TerminalCommand GetNextOrdered(string input, IEnumerable<TerminalCommand> commands)
+    /// <returns>Matched string or empty string if nothing matched.</returns>
+    internal static string GetNextOrdered(string input, IEnumerable<string> collection)
     {
-        if (string.IsNullOrWhiteSpace(input) || commands is null || commands.Count() == 0)
-            return TerminalCommand.Empty;
+        if (string.IsNullOrWhiteSpace(input) || collection is null || !collection.Any())
+            return string.Empty;
 
-        var ordered = commands.OrderBy(c => c.Command);
+        return collection.OrderBy(c => c).FirstOrDefault(c => string.Compare(c, input) > 0, string.Empty);
+    }
 
-        foreach (var cmd in ordered)
-        {
-            if (string.Compare(cmd.Command, input) > 0)
-                return cmd;
-        }
+    internal static string GetPreviousOrdered(string input, IEnumerable<string> collection)
+    {
+        if (string.IsNullOrWhiteSpace(input) || collection is null || !collection.Any())
+            return string.Empty;
 
-        return ordered.FirstOrDefault(TerminalCommand.Empty);
+        return collection.OrderByDescending(c => c).FirstOrDefault(c => string.Compare(c, input) < 0, string.Empty);
     }
 
     /// <summary>
-    /// Matches all commands that start with input string.
+    /// Matches all string from a collection that start with input string.
     /// </summary>
-    /// <param name="input"></param>
-    /// <param name="commands">Collection of commands</param>
-    /// <returns>Collection of matched commands or empty collection if none matched.</returns>
-    internal static IEnumerable<TerminalCommand> MatchAll(string input, IEnumerable<TerminalCommand> commands)
+    /// <returns>Collection of matched strings or empty collection if none matched.</returns>
+    internal static IEnumerable<string> MatchAll(string input, IEnumerable<string> collection)
     {
-        if (string.IsNullOrWhiteSpace(input) || commands is null || commands.Count() == 0)
-            return Array.Empty<TerminalCommand>();
+        if (string.IsNullOrWhiteSpace(input) || collection is null || !collection.Any())
+            return Array.Empty<string>();
 
-        var inputTrimmed = input.Trim();
-        return commands.OrderBy(c => c.Command).Where(c => c.Command.StartsWith(inputTrimmed));
+        return collection.Where(c => c.StartsWith(input.Trim())).OrderBy(c => c);
     }
 }

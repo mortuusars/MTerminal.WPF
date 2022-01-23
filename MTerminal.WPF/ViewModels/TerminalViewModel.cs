@@ -5,7 +5,7 @@ namespace MTerminal.WPF.ViewModels;
 
 internal class TerminalViewModel : ObservableObject
 {
-    public CommandsViewModel CommandsViewModel { get; set; } = new CommandsViewModel();
+    public CommandsViewModel CommandsViewModel { get; }
 
     public string Title { get => _title; set { _title = value; OnPropertyChanged(nameof(Title)); } }
     private string _title;

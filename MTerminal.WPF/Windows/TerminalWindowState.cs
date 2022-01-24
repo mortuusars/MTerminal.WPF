@@ -52,13 +52,13 @@ internal static class TerminalWindowState
         {
             try
             {
-                WindowStateRecord state = new(window.Width,
-                                              window.Height,
-                                              window.Left,
-                                              window.Top,
+                var restoreRect = window.RestoreBounds;
+                WindowStateRecord state = new(restoreRect.Width,
+                                              restoreRect.Height,
+                                              restoreRect.Left,
+                                              restoreRect.Top,
                                               window.FontSize,
-                                              window.WindowState
-                                              );
+                                              window.WindowState);
 
                 string json = JsonSerializer.Serialize(state, new JsonSerializerOptions() { WriteIndented = true });
 

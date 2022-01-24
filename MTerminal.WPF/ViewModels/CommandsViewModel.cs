@@ -13,7 +13,7 @@ namespace MTerminal.WPF.ViewModels
         public string CommandText
         {
             get => _commandText;
-            set { _commandText = value; OnPropertyChanged(nameof(CommandText)); GetAutocompletions(CommandText); }
+            set { _commandText = value; OnPropertyChanged(nameof(CommandText)); GetAutocompletionsAsync(CommandText); }
         }
         private string _commandText;
 
@@ -50,7 +50,7 @@ namespace MTerminal.WPF.ViewModels
 
             HistoryUpCommand = new RelayCommand(() => CommandText = _history.GetPrevious());
             HistoryDownCommand = new RelayCommand(() => CommandText = _history.GetNext());
-        }        
+        }
 
         private void ParseAndExecute(string input)
         {
@@ -93,9 +93,9 @@ namespace MTerminal.WPF.ViewModels
             }
         }
 
-        private void GetAutocompletions(string commandText)
+        private async void GetAutocompletionsAsync(string commandText)
         {
-            AutocompleteSuggestion = CommandAutocomplete.MatchOrdered(commandText, _commands.RegisteredCommands.Keys);
+            await Task.Run(() => AutocompleteSuggestion = CommandAutocomplete.MatchOrdered(commandText, _commands.RegisteredCommands.Keys));
         }
 
         private void Autocomplete()
@@ -103,7 +103,7 @@ namespace MTerminal.WPF.ViewModels
             if (CommandText == AutocompleteSuggestion)
             {
                 var next = CommandAutocomplete.GetNextOrdered(CommandText, _commands.GetCommands().Select(c => c.Command));
-                if (next == string.Empty)
+                if (next.Length == 0)
                     next = _commands.GetCommands().Select(c => c.Command).OrderBy(c => c).FirstOrDefault(string.Empty);
                 CommandText = next;
             }

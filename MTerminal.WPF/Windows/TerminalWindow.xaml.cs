@@ -20,6 +20,7 @@ public partial class TerminalWindow : Window
 
         CommandRow.MouseLeftButtonDown += (s, e) => { Keyboard.Focus(CommandBox); e.Handled = true; };
         CommandBox.TargetUpdated += (s, e) => CommandBox.CaretIndex = int.MaxValue;
+
     }
 
     private void TerminalWindow_Loaded(object sender, RoutedEventArgs e)

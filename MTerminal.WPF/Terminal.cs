@@ -1,6 +1,7 @@
 ﻿using MTerminal.WPF.Commands;
 using MTerminal.WPF.ViewModels;
 using MTerminal.WPF.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace MTerminal.WPF;
@@ -29,6 +30,24 @@ public static class Terminal
         Commands.Add(new TerminalCommand("clear", "Clears the Terminal screen.", (_) => Terminal.Clear()).AddAlias("cls"));
 
         TerminalViewModel = new TerminalViewModel();
+    }
+
+    public static Task<char> Read()
+    {
+        if (Window is null) throw new NullReferenceException("Terminal window is null.");
+        return Window.Read();
+    }
+
+    public static Task<string> ReadLine()
+    {
+        if (Window is null) throw new NullReferenceException("Terminal window is null.");
+        return Window.ReadLine();
+    }
+
+    public static Task<(Key key, ModifierKeys modifiers)> ReadKey()
+    {
+        if (Window is null) throw new NullReferenceException("Terminal window is null.");
+        return Window.ReadKey();
     }
 
     #region Window

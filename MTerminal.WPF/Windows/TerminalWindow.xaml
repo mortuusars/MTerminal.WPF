@@ -42,8 +42,8 @@
         <converters:FontSizeBiggerConverter x:Key="FontSizeBigger" />
 
         <SolidColorBrush x:Key="Header" Color="#383838" />
+        <SolidColorBrush x:Key="ReadingInputBrush" Color="#EF5F4A" />
         <SolidColorBrush x:Key="ForegroundLight" Color="#ccc" />
-
 
         <Style x:Key="ScrollThumbs" TargetType="{x:Type Thumb}">
             <Setter Property="Template">
@@ -231,12 +231,15 @@
     <Border
         x:Name="Root"
         Background="Transparent"
-        BorderBrush="{StaticResource Header}"
         BorderThickness="2">
         <Border.Style>
             <Style TargetType="Border">
+                <Setter Property="BorderBrush" Value="{StaticResource Header}" />
                 <Setter Property="Margin" Value="0" />
                 <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsReadingInput, ElementName=window}" Value="True">
+                        <Setter Property="BorderBrush" Value="{Binding ReadingInputBrush}" />
+                    </DataTrigger>
                     <DataTrigger Binding="{Binding WindowState, ElementName=window}" Value="Maximized">
                         <Setter Property="Margin" Value="8" />
                     </DataTrigger>
@@ -471,7 +474,6 @@
                             Width="20"
                             Height="28"
                             Data="M 4,4 L 16,14 L 4,24"
-                            Stroke="{Binding Foreground}"
                             StrokeEndLineCap="Round"
                             StrokeLineJoin="Round"
                             StrokeStartLineCap="Round"
@@ -479,7 +481,20 @@
                             <Path.Style>
                                 <Style TargetType="Path">
                                     <Setter Property="Opacity" Value="0.6" />
+                                    <Setter Property="Stroke" Value="{Binding Foreground}" />
                                     <Style.Triggers>
+                                        <!--<DataTrigger Binding="{Binding IsReadingInput, ElementName=window}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <ColorAnimation
+                                                            Storyboard.TargetProperty="(Path.Stroke).(SolidColorBrush.Color)"
+                                                            To="IndianRed"
+                                                            Duration="0:0:0.1" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>-->
                                         <DataTrigger Binding="{Binding IsMouseOver, ElementName=CommandRow}" Value="True">
                                             <DataTrigger.EnterActions>
                                                 <BeginStoryboard>
@@ -603,7 +618,14 @@
                         </TextBox.Style>
                     </TextBox>
 
-
+                    <!--<Ellipse
+                        x:Name="ReadingIndicator"
+                        Grid.Column="1"
+                        Width="{Binding FontSize, ElementName=window}"
+                        Height="{Binding FontSize, ElementName=window}"
+                        HorizontalAlignment="Right"
+                        Fill="#F76464"
+                        Visibility="{Binding ElementName=window, Path=IsReadingInput, Converter={StaticResource BoolToVisibility}}" />-->
 
 
                 </Grid>

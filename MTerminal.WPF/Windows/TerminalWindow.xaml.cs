@@ -8,6 +8,15 @@ namespace MTerminal.WPF.Windows;
 
 public partial class TerminalWindow : Window
 {
+    public bool IsReadingInput
+    {
+        get { return (bool)GetValue(IsReadingInputProperty); }
+        set { Dispatcher.BeginInvoke(() => SetValue(IsReadingInputProperty, value)); }
+    }
+
+    public static readonly DependencyProperty IsReadingInputProperty =
+        DependencyProperty.Register(nameof(IsReadingInput), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
+
     public TerminalWindow()
     {
         InitializeComponent();
@@ -32,6 +41,10 @@ public partial class TerminalWindow : Window
         binding.Source = DataContext;
         BindingOperations.SetBinding(this, BufferCapacityProperty, binding);
     }
+
+    public Task<char> Read() => new TerminalRead(CommandBox, this).Read();
+    public Task<string> ReadLine() => new TerminalRead(CommandBox, this).ReadLine();
+    public Task<(Key key, ModifierKeys modifiers)> ReadKey() => new TerminalRead(CommandBox, this).ReadKey();
 
     #region Writing
 

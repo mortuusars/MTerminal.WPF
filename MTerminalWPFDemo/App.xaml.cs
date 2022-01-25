@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Input;
 
 namespace MTerminalWPFDemo;
 
@@ -42,7 +43,7 @@ public partial class App : Application
         });
 
         Terminal.Commands.Add(new TerminalCommand("write", "", (args) => Terminal.WriteLine(string.Join(' ', args))).AddAlias("print"));
-        Terminal.Commands.Add(new TerminalCommand("buffercapacity", "", (_) => Terminal.WriteLine(Terminal.BufferCapacity)));
+        Terminal.Commands.Add(new TerminalCommand("read", "", (_) => Task.Run(Read)));
 
         // Show the window:
         Terminal.Show();
@@ -57,5 +58,21 @@ public partial class App : Application
         Console.SetOut(Terminal.Out);
         Console.WriteLine("Console output was redirected to the Terminal!");
         //Console.Clear();  - IOException. Some System.Console methods fail when output is redirected.
+    }
+
+    public async void Read()
+    {
+        Terminal.WriteLine("Enter the character:", Colors.LightBlue);
+        char c = await Terminal.Read();
+        Terminal.WriteLine($"You entered: '{c}'");
+
+        Terminal.WriteLine("Enter the line:", Colors.CadetBlue);
+        string line = await Terminal.ReadLine();
+        Terminal.WriteLine($"You entered: \"{line}\"");
+
+        Terminal.WriteLine("Press any key:", Colors.LightGreen);
+        var (key, modifiers) = await Terminal.ReadKey();
+        string pressedModifiers = modifiers != ModifierKeys.None ? modifiers.ToString() : "";
+        Terminal.Write($"You pressed: {pressedModifiers} + {key}");
     }
 }

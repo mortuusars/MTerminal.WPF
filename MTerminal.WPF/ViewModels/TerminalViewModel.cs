@@ -29,6 +29,13 @@ internal class TerminalViewModel : ObservableObject
         set { _foreground = value; _foreground.Freeze(); OnPropertyChanged(nameof(Foreground)); }
     }
 
+    private SolidColorBrush _readingInputBrush;
+    public SolidColorBrush ReadingInputBrush
+    {
+        get => _readingInputBrush;
+        set { _readingInputBrush = value; OnPropertyChanged(nameof(ReadingInputBrush)); }
+    }
+
     private FontFamily _fontFamily;
     public FontFamily FontFamily
     {
@@ -56,6 +63,7 @@ internal class TerminalViewModel : ObservableObject
         _title = "MTerminal";
         _background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#161616"));
         _foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ccc"));
+        _readingInputBrush = Brushes.LightSteelBlue;
         _fontFamily = new FontFamily("Consolas");
         _bufferCapacity = 300;
     }

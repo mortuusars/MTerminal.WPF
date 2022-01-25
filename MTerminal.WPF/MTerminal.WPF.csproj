@@ -1,28 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-	<UseWPF>true</UseWPF>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<Nullable>enable</Nullable>
+		<IncludeBuiltProjectOutputGroup>true</IncludeBuiltProjectOutputGroup>
+		<Description>Allows to create a Terminal window (WPF), write messages to it and enter and execute commands.</Description>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>mortuus</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Version>0.1.0</Version>
+		<PackageProjectUrl>https://github.com/mortuusars/MTerminal.WPF</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/mortuusars/MTerminal.WPF</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>wpf console terminal commands command shell cli</PackageTags>
+		<PackageReleaseNotes>0.1.0 - Initial release.</PackageReleaseNotes>
+		<PackageReadmeFile>..\README.md</PackageReadmeFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="MTerminal.Tests" />
 	</ItemGroup>
-	
-  <ItemGroup>
-    <None Remove="Resources\Images\console.png" />
-    <None Remove="Resources\Images\shadow.png" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\Images\console.png" />
+		<None Remove="Resources\Images\shadow.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Resources\Images\console.png" />
-    <Resource Include="Resources\Images\shadow.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Resources\Images\console.png" />
+		<Resource Include="Resources\Images\shadow.png" />
+	</ItemGroup>
 
 </Project>

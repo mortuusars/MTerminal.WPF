@@ -14,21 +14,8 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // Terminal.Buffer = 500;       - Window is not created yet
-        // Terminal.Show();             - Window is created and shown
-
-        // Terminal.WriteLine("asd");   - Write
-
-        // Terminal.Close();            - Window is closed
-        // Terminal.IsOpen              - false
-
-        // Terminal.Write("a");         - nothing happens
-
-        // Terminal.Show();             - Create and show again, display is cleared
-        // Terminal.Write("a");         - Write
-        // Terminal.Hide();             - Hide, but still able to write
-
-
+        // Set max number of lines:
+        //Terminal.BufferCapacity = 400;
 
         // Changing window style:
         Terminal.Style.WindowTitle = "Demo Terminal";
@@ -48,30 +35,15 @@ public partial class App : Application
         //Terminal.Style.FontFamily = new FontFamily(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Fonts/"), "./#Classic Console Neue");
 
         // Adding commands:
-        Terminal.Commands.Add(new TerminalCommand("crash")
-        {
-            Description = "[message] | Tries to crash the app",
-            Action = (args) => throw new Exception(string.Join(' ', args)),
-        }
-        .AddAlias("throw")
-        .AddAlias("fail"));
-
         Terminal.Commands.Add(new TerminalCommand("exit")
         {
             Description = "Exits the app",
             Action = (_) => Shutdown()
         });
 
-        Terminal.Commands.Add(new TerminalCommand("write", "", (args) => Terminal.WriteLine(string.Join(' ', args))));
-        Terminal.Commands.Add(new TerminalCommand("find", "", (args) => 
-        {
-            var cmd = Terminal.Commands.Find(string.Join(' ', args));
-            Terminal.WriteLine(cmd, Colors.AntiqueWhite);
-        }));
+        Terminal.Commands.Add(new TerminalCommand("write", "", (args) => Terminal.WriteLine(string.Join(' ', args))).AddAlias("print"));
+        Terminal.Commands.Add(new TerminalCommand("buffercapacity", "", (_) => Terminal.WriteLine(Terminal.BufferCapacity)));
 
-        Terminal.Commands.Add(new TerminalCommand("close", "", (_) => Terminal.Close()));
-        Terminal.Commands.Add(new TerminalCommand("hide", "", (_) => Terminal.Hide()));
-        
         // Show the window:
         Terminal.Show();
 
@@ -83,7 +55,7 @@ public partial class App : Application
 
         // Redirect console output to the terminal:
         Console.SetOut(Terminal.Out);
-        Console.WriteLine("Written from a default console!");
+        Console.WriteLine("Console output was redirected to the Terminal!");
         //Console.Clear();  - IOException. Some System.Console methods fail when output is redirected.
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace MTerminal.WPF.Commands;
+﻿namespace MTerminal.WPF.Utils;
 
 /// <summary>
 /// Represents a list with a limited capacity. When items are added to the history - oldest items will be deleted.<br></br>

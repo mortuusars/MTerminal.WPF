@@ -1,15 +1,18 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using MTerminal.WPF.Autocomplete;
-using System.Windows.Input;
-using System.Windows.Media;
 using MTerminal.WPF.Commands;
 using MTerminal.WPF.Utils;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace MTerminal.WPF.ViewModels
 {
     public class CommandsViewModel : ObservableObject
     {
+        /// <summary>
+        /// Text that user types in a command text block.
+        /// </summary>
         public string CommandText
         {
             get => _commandText;
@@ -17,6 +20,9 @@ namespace MTerminal.WPF.ViewModels
         }
         private string _commandText;
 
+        /// <summary>
+        /// Suggestion of the available autocompletion.
+        /// </summary>
         public string AutocompleteSuggestion
         {
             get => _autocompleteSuggestion;
@@ -33,7 +39,7 @@ namespace MTerminal.WPF.ViewModels
         private readonly CommandRegistry _commands;
         private readonly CommandInputProcessor _commandInputProcessor;
 
-        private History<string> _history;
+        private readonly History<string> _history;
 
         public CommandsViewModel()
         {
@@ -52,13 +58,17 @@ namespace MTerminal.WPF.ViewModels
             HistoryDownCommand = new RelayCommand(() => CommandText = _history.GetNext());
         }
 
-        private void ParseAndExecute(string input)
+        /// <summary>
+        /// Finds a command from the user input, and executes it.
+        /// </summary>
+        /// <param name="input">Input to parse and execute.</param>
+        private void ParseAndExecute(string? input)
         {
-            CommandText = string.Empty;
-            _history.Append(input);
-
             if (string.IsNullOrWhiteSpace(input))
                 return;
+
+            CommandText = string.Empty;
+            _history.Append(input);
 
             //Print entered text:
             string enteredText = Terminal.IsNewLine() ? input : "\n" + input;
@@ -73,10 +83,16 @@ namespace MTerminal.WPF.ViewModels
                 return;
             }
 
-            Execute(input, command, args);
+            Execute(command, input, args.ToArray());
         }
 
-        private void Execute(string input, TerminalCommand command, IEnumerable<string> args)
+        /// <summary>
+        /// Executes entered command with args.
+        /// </summary>
+        /// <param name="command">Command to execute.</param>
+        /// <param name="input">Entered text to print if exception is thrown when executing.</param>
+        /// <param name="args">Args to pass to the command.</param>
+        private void Execute(TerminalCommand command, string input, string[] args)
         {
             try
             {
@@ -93,18 +109,28 @@ namespace MTerminal.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Sets autocomplete suggestion to the matched command.
+        /// </summary>
+        /// <param name="commandText"></param>
         private async void GetAutocompletionsAsync(string commandText)
         {
-            await Task.Run(() => AutocompleteSuggestion = CommandAutocomplete.MatchOrdered(commandText, _commands.RegisteredCommands.Keys));
+            await Task.Run(() => AutocompleteSuggestion = CommandAutocomplete.MatchOrdered(commandText, _commands.CommandNames));
         }
 
+        /// <summary>
+        /// Replaces entered command text with autocomplete suggestion or next command in alphabetical order if used successively.
+        /// </summary>
         private void Autocomplete()
         {
-            if (CommandText == AutocompleteSuggestion)
+            if (CommandText.Equals(AutocompleteSuggestion, StringComparison.InvariantCultureIgnoreCase))
             {
-                var next = CommandAutocomplete.GetNextOrdered(CommandText, _commands.GetCommands().Select(c => c.Command));
+                var commands = _commands.RegisteredCommands;
+                
+                var next = CommandAutocomplete.GetNextOrdered(CommandText, commands.Select(c => c.Command));
                 if (next.Length == 0)
-                    next = _commands.GetCommands().Select(c => c.Command).OrderBy(c => c).FirstOrDefault(string.Empty);
+                    next = commands.Select(c => c.Command).OrderBy(c => c).FirstOrDefault(string.Empty);
+                
                 CommandText = next;
             }
             else
@@ -113,9 +139,12 @@ namespace MTerminal.WPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Replaces entered command text with previous command in alphabetical order.
+        /// </summary>
         private void AutocompleteBackwards()
         {
-            CommandText = CommandAutocomplete.GetPreviousOrdered(CommandText, _commands.GetCommands().Select(c => c.Command));
+            CommandText = CommandAutocomplete.GetPreviousOrdered(CommandText, _commands.RegisteredCommands.Select(c => c.Command));
         }
     }
 }

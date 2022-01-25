@@ -18,11 +18,14 @@ public class TerminalCommand
     public string DetailedDescription { get; set; }
 
     /// <summary>
-    /// Action with a parameter of a specified type, that will be executed.
+    /// Action, that will be executed.
     /// </summary>
-    public Action<IEnumerable<string>> Action { get; set; }
+    public Action<string[]> Action { get; set; }
 
-    public List<string> Aliases { get; set; } = new List<string>();
+    /// <summary>
+    /// Alternative "id's" that can be used to invoke that command.
+    /// </summary>
+    public IList<string> Aliases { get; set; } = new List<string>();
 
     #region Constructors
 
@@ -36,15 +39,14 @@ public class TerminalCommand
     public static readonly TerminalCommand Empty = new TerminalCommand();
 
     /// <summary>
-    /// Creates an instance of a Terminal Command and sets provided properties.
+    /// Creates an instance of a Terminal Command and sets provided properties. 
     /// </summary>
-    /// <param name="command">Command "id". This is what user types to invoke it.</param>
-    /// <param name="description">Short desction of a command.</param>
+    /// <param name="command">Command "id" that used to invoke this command.</param>
+    /// <param name="description">Short description of the command.</param>
     /// <param name="action">Action that will be executed when this command is invoked.</param>
-    public TerminalCommand(string command, string[] aliases, string description, Action<IEnumerable<string>> action)
+    public TerminalCommand(string command, string description, Action<string[]> action)
     {
         Command = command;
-        Aliases = new List<string>(aliases);
         Description = description;
         Action = action;
 
@@ -55,54 +57,19 @@ public class TerminalCommand
     /// Creates an instance of a Terminal Command and sets provided properties.
     /// </summary>
     /// <param name="command">Command "id". This is what user types to invoke it.</param>
-    /// <param name="description">Short desction of a command.</param>
     /// <param name="action">Action that will be executed when this command is invoked.</param>
-    public TerminalCommand(string command, string description, Action<IEnumerable<string>> action)
-    {
-        Command = command;
-        Description = description;
-        Action = action;
-        
-        DetailedDescription = string.Empty;
-    }
+    public TerminalCommand(string command, Action<string[]> action) : this(command, string.Empty, action) { }
 
     /// <summary>
-    /// Creates an instance of a Terminal Command and sets provided properties.
+    /// Creates an instance of a Terminal Command and sets command property.
     /// </summary>
     /// <param name="command">Command "id". This is what user types to invoke it.</param>
-    /// <param name="action">Action that will be executed when this command is invoked.</param>
-    public TerminalCommand(string command, Action<IEnumerable<string>> action)
-    {
-        Command = command;
-        Action = action;
-        
-        Description = string.Empty;
-        DetailedDescription = string.Empty;
-    }
-
-    /// <summary>
-    /// Creates an instance of a Terminal Command and sets provided properties.
-    /// </summary>
-    /// <param name="command">Command "id". This is what user types to invoke it.</param>
-    public TerminalCommand(string command)
-    {
-        Command = command;
-
-        Action = (_) => { };
-        Description = string.Empty;
-        DetailedDescription = string.Empty;
-    }
+    public TerminalCommand(string command) : this(command, string.Empty, (_) => { }) { }
 
     /// <summary>
     /// Creates an instance of a Terminal Command that is equivalent to a <see cref="Empty"/>.
     /// </summary>
-    public TerminalCommand()
-    {
-        Command = string.Empty;
-        Description = string.Empty;
-        Action = (_) => { };
-        DetailedDescription = string.Empty;
-    }
+    public TerminalCommand() : this(string.Empty, string.Empty, (_) => { }) { }
 
     #endregion
 
@@ -120,7 +87,7 @@ public class TerminalCommand
     /// <summary>
     /// Executes command with given arguments.
     /// </summary>
-    public void Execute(IEnumerable<string> args)
+    public void Execute(string[] args)
     {
         Action(args);
     }

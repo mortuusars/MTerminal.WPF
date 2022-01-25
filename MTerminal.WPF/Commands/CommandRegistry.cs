@@ -1,20 +1,37 @@
-﻿using MTerminal.WPF.Autocomplete;
-using System.Windows.Media;
+﻿using System.Collections.Immutable;
 
 namespace MTerminal.WPF.Commands;
 
+/// <summary>
+/// Holds and manages Terminal commands.
+/// </summary>
 public class CommandRegistry
 {
-    internal Dictionary<string, TerminalCommand> RegisteredCommands { get; }
-    internal List<TerminalCommand> CommandsList { get; }
+    /// <summary>
+    /// Gets a readonly collection of all registered commands.
+    /// </summary>
+    public IEnumerable<TerminalCommand> RegisteredCommands { get => _commands.ToArray(); }
+
+    /// <summary>
+    /// Gets a readonly collection of command names and their aliases.
+    /// </summary>
+    public IEnumerable<string> CommandNames { get
+        {
+            var names = new List<string>();
+            foreach (var command in RegisteredCommands)
+            {
+                names.Add(command.Command);
+                names.AddRange(command.Aliases);
+            }
+            return names.ToImmutableArray();
+        }
+    }
+
+    private readonly List<TerminalCommand> _commands;
 
     internal CommandRegistry()
     {
-        RegisteredCommands = new Dictionary<string, TerminalCommand>();
-        CommandsList = new List<TerminalCommand>();
-
-        Add(new HelpTerminalCommand(CommandsList));
-        Add(new TerminalCommand("clear", aliases: new[] { "cls" }, "Clears the Terminal screen.", (_) => Terminal.Clear()));
+        _commands = new List<TerminalCommand>();
     }
 
     /// <summary>
@@ -29,27 +46,53 @@ public class CommandRegistry
         if (Find(command.Command) is not null)
             throw new ArgumentException($"Command '{command.Command}' is already added. Commands are case insensitive.");
 
-        RegisteredCommands.Add(command.Command, command);
-
-        if (command.Aliases.Count > 0)
-        {
-            foreach (var alias in command.Aliases)
-            {
-                RegisteredCommands.Add(alias, command);
-            }
-        }
-
-        CommandsList.Add(command);
+        _commands.Add(command);
     }
 
+    /// <summary>
+    /// Searches specified command in a list of registered commands and returns it if found.
+    /// </summary>
+    /// <param name="command">Command to find.</param>
+    /// <returns>Found command or <see langword="null"/> if not found.</returns>
     public TerminalCommand? Find(string command)
     {
-        return RegisteredCommands.FirstOrDefault(c => c.Key.Equals(command, StringComparison.InvariantCultureIgnoreCase)).Value;
+        foreach (var cmd in _commands)
+        {
+            if (cmd.Command.Equals(command, StringComparison.InvariantCultureIgnoreCase)
+                || cmd.Aliases.Contains(command, StringComparer.InvariantCultureIgnoreCase))
+            {
+                return cmd;
+            }
+        }
+        return null;
     }
-    public bool Remove(TerminalCommand command) => 
-        RegisteredCommands.Remove(command.Command) & CommandsList.Remove(command); // Singular & operator to execute both parts.
-    public bool Remove(string command) => Find(command) is TerminalCommand cmd && Remove(cmd);
+
+    /// <summary>
+    /// Removes a command from registered commands.
+    /// </summary>
+    /// <param name="command">Command to remove.</param>
+    /// <returns><see langword="true"/> if successfully removed.</returns>
+    public bool Remove(TerminalCommand command)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        return _commands.Remove(command);
+    }
+
+    /// <summary>
+    /// Removes a command by name from registered commands.
+    /// </summary>
+    /// <param name="command">Command to remove.</param>
+    /// <returns><see langword="true"/> if successfully removed.</returns>
+    public bool Remove(string command)
+    {
+        return Find(command) is TerminalCommand cmd && Remove(cmd);
+    }
+
+    /// <summary>Indicates whether specified command is registered.</summary>
     public bool Contains(TerminalCommand command) => Find(command.Command) is not null;
+    
+    /// <summary>Indicates whether specified command name is registered.</summary>
     public bool Contains(string command) => Find(command) is not null;
-    public IEnumerable<TerminalCommand> GetCommands() => CommandsList.ToArray();
 }

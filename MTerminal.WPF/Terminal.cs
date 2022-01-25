@@ -25,6 +25,9 @@ public static class Terminal
         Style = new TerminalStyle();
         Out = new TerminalWriter();
 
+        Commands.Add(new HelpTerminalCommand());
+        Commands.Add(new TerminalCommand("clear", "Clears the Terminal screen.", (_) => Terminal.Clear()).AddAlias("cls"));
+
         TerminalViewModel = new TerminalViewModel();
     }
 
@@ -40,26 +43,27 @@ public static class Terminal
     /// <exception cref="ArgumentOutOfRangeException">If value is less or equal to 0.</exception>
     public static int BufferCapacity { get => TerminalViewModel.BufferCapacity; set => TerminalViewModel.BufferCapacity = value; }
 
-    private static void CreateWindow()
-    {
-        if (Window is not null)
-            Close();
-
-        Window = new TerminalWindow();
-        Window.DataContext = TerminalViewModel;
-    }
-
+    /// <summary>
+    /// Indicates whether the window was shown. (Window can be hidden but still open)
+    /// </summary>
     public static bool IsOpen { get => Window is not null; }
+    /// <summary>
+    /// Indicates whether the Terminal window is visible on the screen.
+    /// </summary>
     public static bool IsVisible { get => Window is not null && Window.IsVisible; }
 
+    /// <summary>
+    /// Show the terminal window.
+    /// </summary>
     public static void Show()
     {
-        if (Window is null)
-            CreateWindow();
-
-        Window!.Show();
+        (Window ??= CreateWindow()).Show();
     }
 
+    /// <summary>
+    /// Closes the terminal window.
+    /// </summary>
+    /// <returns><see langword="true"/> if window was successfully closed. Otherwise <see langword="false"/>.</returns>
     public static bool Close()
     {
         if (Window is null) return false;
@@ -80,6 +84,16 @@ public static class Terminal
     /// Hides Terminal window if it is opened.
     /// </summary>
     public static void Hide() => Window?.Hide();
+
+    private static TerminalWindow CreateWindow()
+    {
+        if (Window is not null)
+            Close();
+
+        var window = new TerminalWindow();
+        window.DataContext = TerminalViewModel;
+        return window;
+    }
 
     #endregion
 

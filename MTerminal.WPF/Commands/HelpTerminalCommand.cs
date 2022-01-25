@@ -4,12 +4,9 @@ namespace MTerminal.WPF.Commands;
 
 internal class HelpTerminalCommand : TerminalCommand
 {
-    private readonly IEnumerable<TerminalCommand> _commands;
-
-    public HelpTerminalCommand(IEnumerable<TerminalCommand> commands) : base("help")
+    public HelpTerminalCommand()
     {
-        _commands = commands;
-
+        Command = "help";
         Description = "Shows information about Terminal and available commands.";
         DetailedDescription = "Shows short info if no arguments were entered.\n" +
                               "Specify a command name to see detailed info about it.\n" +
@@ -23,25 +20,27 @@ internal class HelpTerminalCommand : TerminalCommand
     /// </summary>
     private void PrintHelp(IEnumerable<string> args)
     {
+        var commands = Terminal.Commands.RegisteredCommands;
+
         if (!Terminal.IsNewLine())
             Terminal.WriteLine(); // Start from a new line
 
         if (!args.Any())
-            PrintGeneralHelp();
+            PrintGeneralHelp(commands);
         else if (args.Contains("-full"))
-            PrintCommandsFullInfo(_commands);
+            PrintCommandsFullInfo(commands);
         else
         {
             // Take all matching commands:
-            var commands = _commands.Where(c => c.Command.StartsWith(args.First()));
-            if (commands.Any())
+            var matchedCommands = commands.Where(c => c.Command.StartsWith(args.First()));
+            if (matchedCommands.Any())
             {
-                PrintCommandsFullInfo(commands);
+                PrintCommandsFullInfo(matchedCommands);
                 return;
             }
 
             // If none matched - search in their aliases:
-            var aliases = _commands.Where(c => c.Aliases.Any(a => a.StartsWith(args.First())));
+            var aliases = commands.Where(c => c.Aliases.Any(a => a.StartsWith(args.First())));
             if (aliases.Any())
             {
                 PrintCommandsFullInfo(aliases);
@@ -53,18 +52,18 @@ internal class HelpTerminalCommand : TerminalCommand
     }
 
     /// <summary>Prints some info about Terminal and lists all avalilable commands.</summary>
-    private void PrintGeneralHelp()
+    private void PrintGeneralHelp(IEnumerable<TerminalCommand> commands)
     {
         Terminal.Write($"MTerminal - {Terminal.Version}", Colors.LightGray);
         Terminal.WriteLine(" - By Mortuus\n", Colors.Gray);
 
-        if (!_commands.Any())
+        if (!commands.Any())
         {
             Terminal.WriteLine("No commands have been added.");
             return;
         }
 
-        string longestCommand = _commands
+        string longestCommand = commands
             .Select(c => $"{c.Command}  {string.Join(" / ", c.Aliases)}")
             .OrderByDescending(c => c.Length)
             .First();
@@ -74,7 +73,7 @@ internal class HelpTerminalCommand : TerminalCommand
         Terminal.WriteLine("<Command>".PadRight(cmdColumnLength) + "|  <Description - [] is optional parameter>");
         Terminal.WriteLine(new string('_', 40) + "\n"); // Divider
 
-        foreach (var cmd in _commands)
+        foreach (var cmd in commands)
         {
             if (cmd.Aliases.Count > 0)
                 Terminal.Write($"{cmd.Command} / {string.Join(" / ", cmd.Aliases)}".PadRight(cmdColumnLength), Colors.LightGray);

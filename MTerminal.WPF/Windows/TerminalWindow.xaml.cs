@@ -12,7 +12,7 @@ public partial class TerminalWindow : Window
     {
         InitializeComponent();
 
-        Loaded += TerminalWindow_Loaded;
+        SourceInitialized += TerminalWindow_SourceInitialized;
         Activated += (s, e) => Keyboard.Focus(CommandBox);
         SizeChanged += (s, e) => RecalculateIsDocked();
         PreviewMouseWheel += TerminalWindow_PreviewMouseWheel;
@@ -23,7 +23,7 @@ public partial class TerminalWindow : Window
 
     }
 
-    private void TerminalWindow_Loaded(object sender, RoutedEventArgs e)
+    private void TerminalWindow_SourceInitialized(object? sender, EventArgs e)
     {
         TerminalWindowState.Load(this);
 
@@ -146,8 +146,6 @@ public partial class TerminalWindow : Window
     protected override void OnClosing(CancelEventArgs e)
     {
         TerminalWindowState.Save(this);
-        //if (this.KeepWrittenText)
-        //ConsoleOutput.SaveXamlDocument("doc.xaml");
         base.OnClosing(e);
     }
 

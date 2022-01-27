@@ -483,18 +483,9 @@
                                     <Setter Property="Opacity" Value="0.6" />
                                     <Setter Property="Stroke" Value="{Binding Foreground}" />
                                     <Style.Triggers>
-                                        <!--<DataTrigger Binding="{Binding IsReadingInput, ElementName=window}" Value="True">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <ColorAnimation
-                                                            Storyboard.TargetProperty="(Path.Stroke).(SolidColorBrush.Color)"
-                                                            To="IndianRed"
-                                                            Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                        </DataTrigger>-->
+                                        <DataTrigger Binding="{Binding IsReadingInput, ElementName=window}" Value="True">
+                                            <Setter Property="Stroke" Value="{Binding ReadingInputBrush}" />
+                                        </DataTrigger>
                                         <DataTrigger Binding="{Binding IsMouseOver, ElementName=CommandRow}" Value="True">
                                             <DataTrigger.EnterActions>
                                                 <BeginStoryboard>

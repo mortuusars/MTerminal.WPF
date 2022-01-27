@@ -58,6 +58,9 @@ public partial class App : Application
         Console.SetOut(Terminal.Out);
         Console.WriteLine("Console output was redirected to the Terminal!");
         //Console.Clear();  - IOException. Some System.Console methods fail when output is redirected.
+        
+        var ch = Terminal.Read();
+        Terminal.WriteLine(ch);
     }
 
     public async void Read()
@@ -72,7 +75,8 @@ public partial class App : Application
 
         Terminal.WriteLine("Press any key:", Colors.LightGreen);
         var (key, modifiers) = await Terminal.ReadKey();
-        string pressedModifiers = modifiers != ModifierKeys.None ? modifiers.ToString() : "";
-        Terminal.Write($"You pressed: {pressedModifiers} + {key}");
+        string pressedModifiers = modifiers != ModifierKeys.None ? modifiers.ToString() + " + " : "";
+        Terminal.Write("You pressed: ");
+        Terminal.WriteLine($"{pressedModifiers}{key}", Colors.Gold);
     }
 }

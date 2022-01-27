@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -8,15 +9,24 @@ namespace MTerminal.WPF.Controls;
 
 public partial class ConsoleControl : UserControl
 {
+    /// <summary>
+    /// propdp of CaretBrush.
+    /// </summary>
     public static readonly DependencyProperty CaretBrushProperty =
     DependencyProperty.Register(nameof(CaretBrush), typeof(Brush), typeof(ConsoleControl), new PropertyMetadata(Brushes.White));
 
+    /// <summary>
+    /// Brush of the caret.
+    /// </summary>
     public Brush CaretBrush
     {
         get { return (Brush)GetValue(CaretBrushProperty); }
         set { SetValue(CaretBrushProperty, value); }
     }
 
+    /// <summary>
+    /// propdp of BufferCapacity.
+    /// </summary>
     public static readonly DependencyProperty BufferCapacityProperty =
     DependencyProperty.Register(nameof(BufferCapacity), typeof(int), typeof(ConsoleControl), new PropertyMetadata(500));
 
@@ -29,6 +39,9 @@ public partial class ConsoleControl : UserControl
         set { SetValue(BufferCapacityProperty, value); }
     }
 
+    /// <summary>
+    /// propdp of AutoScrollOnWrite.
+    /// </summary>
     public static readonly DependencyProperty AutoScrollOnWriteProperty =
     DependencyProperty.Register(nameof(AutoScrollOnWrite), typeof(bool), typeof(ConsoleControl), new PropertyMetadata(true));
 
@@ -41,6 +54,9 @@ public partial class ConsoleControl : UserControl
         set { SetValue(AutoScrollOnWriteProperty, value); }
     }
 
+    /// <summary>
+    /// Creates an instance of the ConsoleControl.
+    /// </summary>
     public ConsoleControl()
     {
         InitializeComponent();
@@ -63,7 +79,9 @@ public partial class ConsoleControl : UserControl
             scrollViewer.ScrollChanged += (s, e) =>
             {
                 if (AutoScrollOnWrite) return;
-                //TODO: enable auto-scroll when scrolled to bottom.
+
+                if (e.VerticalOffset == scrollViewer.ScrollableHeight)
+                    AutoScrollOnWrite = true;
             };
         }
     }

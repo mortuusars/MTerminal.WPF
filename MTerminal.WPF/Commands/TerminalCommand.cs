@@ -1,5 +1,8 @@
 ﻿namespace MTerminal.WPF;
 
+/// <summary>
+/// Describes a command that executes an action when invoked.
+/// </summary>
 public class TerminalCommand
 {
     /// <summary>
@@ -23,7 +26,7 @@ public class TerminalCommand
     public Action<string[]> Action { get; set; }
 
     /// <summary>
-    /// Alternative "id's" that can be used to invoke that command.
+    /// Alternative "id's" that can be used to invoke that command. List is already initialized.
     /// </summary>
     public IList<string> Aliases { get; set; } = new List<string>();
 
@@ -35,7 +38,10 @@ public class TerminalCommand
     /// Default is <see langword="false"/>.
     /// </summary>
     public bool ThrowsException { get; set; } = false;
-
+    
+    /// <summary>
+    /// Command with empty properties.
+    /// </summary>
     public static readonly TerminalCommand Empty = new TerminalCommand();
 
     /// <summary>
@@ -98,7 +104,7 @@ public class TerminalCommand
     /// </summary>
     public bool IsEmpty()
     {
-        return string.IsNullOrWhiteSpace(Command);
+        return this.Equals(Empty) || string.IsNullOrWhiteSpace(Command);
     }
 
     /// <summary>

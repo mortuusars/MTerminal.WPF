@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using MTerminal.WPF.ViewModels;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -8,15 +9,24 @@ namespace MTerminal.WPF.Windows;
 
 public partial class TerminalWindow : Window
 {
+    /// <summary>
+    /// Indicates that the Terminal is in reading input mode.
+    /// </summary>
     public bool IsReadingInput
     {
         get { return (bool)GetValue(IsReadingInputProperty); }
         set { Dispatcher.BeginInvoke(() => SetValue(IsReadingInputProperty, value)); }
     }
 
+    /// <summary>
+    /// propdp of IsReadingInput.
+    /// </summary>
     public static readonly DependencyProperty IsReadingInputProperty =
         DependencyProperty.Register(nameof(IsReadingInput), typeof(bool), typeof(TerminalWindow), new PropertyMetadata(false));
 
+    /// <summary>
+    /// Creates an instance of Terminal window.
+    /// </summary>
     public TerminalWindow()
     {
         InitializeComponent();
@@ -37,13 +47,29 @@ public partial class TerminalWindow : Window
         TerminalWindowState.Load(this);
 
         // Bind to view model property, it's easier than setting value manually every time window is created (and on every change too).
-        var binding = new Binding("BufferCapacity");
-        binding.Source = DataContext;
-        BindingOperations.SetBinding(this, BufferCapacityProperty, binding);
+        var bufCpBinding = new Binding(nameof(BufferCapacity));
+        bufCpBinding.Source = DataContext;
+        BindingOperations.SetBinding(this, BufferCapacityProperty, bufCpBinding);
+
+        // Bind IsReading so viewmodel knows when not to interfere:
+        var isReadingBinding = new Binding($"{nameof(CommandsViewModel)}.{nameof(IsReadingInput)}");
+        isReadingBinding.Source = DataContext;
+        isReadingBinding.Mode = BindingMode.TwoWay;
+        BindingOperations.SetBinding(this, IsReadingInputProperty, isReadingBinding);
     }
 
+    /// <summary>
+    /// Reads next character input from user.
+    /// </summary>
     public Task<char> Read() => new TerminalRead(CommandBox, this).Read();
+
+    /// <summary>
+    /// Reads a line input from user. (When return is pressed)
+    /// </summary>
     public Task<string> ReadLine() => new TerminalRead(CommandBox, this).ReadLine();
+    /// <summary>
+    /// Reads next key input. Modifiers are not counted as keys (but would be included as part of it).
+    /// </summary>
     public Task<(Key key, ModifierKeys modifiers)> ReadKey() => new TerminalRead(CommandBox, this).ReadKey();
 
     #region Writing
@@ -53,6 +79,9 @@ public partial class TerminalWindow : Window
     /// </summary>
     public string Text { get => ConsoleOutput.GetText(); }
 
+    /// <summary>
+    /// propdp of Buffer Capacity.
+    /// </summary>
     public static readonly DependencyProperty BufferCapacityProperty =
         DependencyProperty.Register(nameof(BufferCapacity), typeof(int), typeof(TerminalWindow), new PropertyMetadata(300, OnBufferCapacityChanged));
 
@@ -62,15 +91,32 @@ public partial class TerminalWindow : Window
         window.ConsoleOutput.BufferCapacity = (int)e.NewValue;
     }
 
+    /// <summary>
+    /// Max number of lines in a Terminal.
+    /// </summary>
     public int BufferCapacity
     {
         get { return (int)GetValue(BufferCapacityProperty); }
         set { SetValue(BufferCapacityProperty, value); }
     }
-
-    public void Write(string text) => ConsoleOutput.Write(text);
-    public void Write(string text, Color color) => ConsoleOutput.Write(text, color);
+    /// <summary>
+    /// Writes a message to the Terminal Output.
+    /// </summary>
+    /// <param name="message">Message to write.</param>
+    public void Write(string message) => ConsoleOutput.Write(message);
+    /// <summary>
+    /// Writes a colored message to the Terminal Output.
+    /// </summary>
+    /// <param name="message">Message to write.</param>
+    /// <param name="color">Color of the message.</param>
+    public void Write(string message, Color color) => ConsoleOutput.Write(message, color);
+    /// <summary>
+    /// Clears the screen.
+    /// </summary>
     public void Clear() => ConsoleOutput.Clear();
+    /// <summary>
+    /// Removes last line from the screen.
+    /// </summary>
     public void RemoveLastLine() => ConsoleOutput.RemoveLastLine();
 
     #endregion
@@ -156,6 +202,10 @@ public partial class TerminalWindow : Window
             window.WindowChromeData.CaptionHeight = window.HeaderRow.Height.Value - window.WindowChromeData.ResizeBorderThickness.Top + 2;
     }
 
+    /// <summary>
+    /// When the window is closing.
+    /// </summary>
+    /// <param name="e"></param>
     protected override void OnClosing(CancelEventArgs e)
     {
         TerminalWindowState.Save(this);

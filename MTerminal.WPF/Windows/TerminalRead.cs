@@ -20,8 +20,6 @@ internal class TerminalRead
         _window = window;
     }
 
-    //TODO: Indicator for read state.
-
     public async Task<char> Read()
     {
         _textBox.PreviewTextInput += CommandBox_PreviewTextInput;
@@ -29,6 +27,7 @@ internal class TerminalRead
 
         while (!_charEntered)
         {
+            Terminal.WriteLine($"Is UI thread: {_window.Dispatcher.CheckAccess()}");
             await Task.Delay(25);
         }
 
@@ -106,6 +105,7 @@ internal class TerminalRead
         {
             _hotkey = (e.Key, Keyboard.Modifiers);
             _keyPressed = true;
+            e.Handled = true;
         }
     }
 }

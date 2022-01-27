@@ -32,21 +32,39 @@ public static class Terminal
         TerminalViewModel = new TerminalViewModel();
     }
 
+    /// <summary>
+    /// Waits until a user inputs a character.<br></br>
+    /// Use carefully: if GetAwaiter().GetResult() is used - it will result in a deadlock.
+    /// </summary>
+    /// <returns>Input character.</returns>
+    /// <exception cref="InvalidOperationException">If Terminal window is closed.</exception>
     public static Task<char> Read()
     {
-        if (Window is null) throw new NullReferenceException("Terminal window is null.");
+        if (Window is null) throw new InvalidOperationException("Terminal window is null.");
         return Window.Read();
     }
 
+    /// <summary>
+    /// Waits until a user presses return key and returns the text that was entered.<br></br>
+    /// Use carefully: if GetAwaiter().GetResult() is used - it will result in a deadlock.
+    /// </summary>
+    /// <returns>Inputed line.</returns>
+    /// <exception cref="InvalidOperationException">If Terminal window is closed.</exception>
     public static Task<string> ReadLine()
     {
-        if (Window is null) throw new NullReferenceException("Terminal window is null.");
+        if (Window is null) throw new InvalidOperationException("Terminal window is null.");
         return Window.ReadLine();
     }
 
+    /// <summary>
+    /// Waits until a user presses a key. Modifier keys are ignored as a key, but included as part of a key combination.<br></br>
+    /// Use carefully: if GetAwaiter().GetResult() is used - it will result in a deadlock.
+    /// </summary>
+    /// <returns>Pressed key with modifiers..</returns>
+    /// <exception cref="InvalidOperationException">If Terminal window is closed.</exception>
     public static Task<(Key key, ModifierKeys modifiers)> ReadKey()
     {
-        if (Window is null) throw new NullReferenceException("Terminal window is null.");
+        if (Window is null) throw new InvalidOperationException("Terminal window is null.");
         return Window.ReadKey();
     }
 
@@ -118,6 +136,9 @@ public static class Terminal
 
     #region Writing
 
+    /// <summary>
+    /// Gets the text that is currently on the Terminal screen.
+    /// </summary>
     public static string? Text { get => Window?.Text; }
 
     /// <summary>
@@ -184,6 +205,7 @@ public static class Terminal
     /// Writes a colored string representation of an object to the Terminal Output.
     /// </summary>
     /// <param name="value">Object to write.</param>
+    /// <param name="color">Color of the text.</param>
     public static void WriteLine(object? value, Color color)
     {
         WriteLine(value?.ToString() ?? "null", color);

@@ -27,7 +27,6 @@ internal class TerminalRead
 
         while (!_charEntered)
         {
-            Terminal.WriteLine($"Is UI thread: {_window.Dispatcher.CheckAccess()}");
             await Task.Delay(25);
         }
 

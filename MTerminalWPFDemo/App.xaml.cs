@@ -16,7 +16,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         // Set max number of lines:
-        //Terminal.BufferCapacity = 400;
+        Terminal.BufferCapacity = 400;
 
         // Changing window style:
         Terminal.Style.WindowTitle = "Demo Terminal";
@@ -58,9 +58,6 @@ public partial class App : Application
         Console.SetOut(Terminal.Out);
         Console.WriteLine("Console output was redirected to the Terminal!");
         //Console.Clear();  - IOException. Some System.Console methods fail when output is redirected.
-        
-        var ch = Terminal.Read();
-        Terminal.WriteLine(ch);
     }
 
     public async void Read()

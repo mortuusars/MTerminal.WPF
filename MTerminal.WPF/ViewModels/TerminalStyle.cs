@@ -16,8 +16,8 @@ public class TerminalStyle
     /// <summary>Background color of the terminal window.</summary>
     public Brush Background { get => Terminal.TerminalViewModel.Background; set => Terminal.TerminalViewModel.Background = value; }
 
-    /// <summary>Background color of the terminal window.</summary>
-    public SolidColorBrush ReadingInputBrush { get => Terminal.TerminalViewModel.ReadingInputBrush; set => Terminal.TerminalViewModel.ReadingInputBrush = value; }
+    /// <summary>Brush that will be used when Terminal is in reading mode..</summary>
+    public Brush ReadingModeBrush { get => Terminal.TerminalViewModel.ReadingInputBrush; set => Terminal.TerminalViewModel.ReadingInputBrush = value; }
 
     /// <summary>Background color of the terminal window.</summary>
     public FontFamily FontFamily { get => Terminal.TerminalViewModel.FontFamily; set => Terminal.TerminalViewModel.FontFamily = value; }

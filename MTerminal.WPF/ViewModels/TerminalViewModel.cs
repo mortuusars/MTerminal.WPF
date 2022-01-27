@@ -26,11 +26,11 @@ internal class TerminalViewModel : ObservableObject
    public SolidColorBrush Foreground
    {
       get => _foreground;
-      set { _foreground = value; _foreground.Freeze(); OnPropertyChanged(nameof(Foreground)); }
+      set { _foreground = value; OnPropertyChanged(nameof(Foreground)); }
    }
 
-   private SolidColorBrush _readingInputBrush;
-   public SolidColorBrush ReadingInputBrush
+   private Brush _readingInputBrush;
+   public Brush ReadingInputBrush
    {
       get => _readingInputBrush;
       set { _readingInputBrush = value; OnPropertyChanged(nameof(ReadingInputBrush)); }

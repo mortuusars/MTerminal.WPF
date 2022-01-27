@@ -10,21 +10,6 @@ namespace MTerminal.WPF.Controls;
 public partial class ConsoleControl : UserControl
 {
     /// <summary>
-    /// propdp of CaretBrush.
-    /// </summary>
-    public static readonly DependencyProperty CaretBrushProperty =
-    DependencyProperty.Register(nameof(CaretBrush), typeof(Brush), typeof(ConsoleControl), new PropertyMetadata(Brushes.White));
-
-    /// <summary>
-    /// Brush of the caret.
-    /// </summary>
-    public Brush CaretBrush
-    {
-        get { return (Brush)GetValue(CaretBrushProperty); }
-        set { SetValue(CaretBrushProperty, value); }
-    }
-
-    /// <summary>
     /// propdp of BufferCapacity.
     /// </summary>
     public static readonly DependencyProperty BufferCapacityProperty =

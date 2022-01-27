@@ -15,7 +15,6 @@
         <Style TargetType="{x:Type local:ConsoleControl}">
             <Setter Property="Background" Value="#00000000" />
             <Setter Property="Foreground" Value="#ccc" />
-            <Setter Property="CaretBrush" Value="#ccc" />
             <Setter Property="FontFamily" Value="Consolas" />
             <Setter Property="FontSize" Value="14" />
         </Style>
@@ -26,7 +25,6 @@
         Background="{Binding ElementName=consoleControl, Path=Background}"
         BorderBrush="{Binding ElementName=consoleControl, Path=BorderBrush}"
         BorderThickness="{Binding ElementName=consoleControl, Path=BorderThickness}"
-        CaretBrush="{Binding ElementName=consoleControl, Path=CaretBrush}"
         Cursor="{Binding ElementName=consoleControl, Path=Cursor}"
         FontFamily="{Binding ElementName=consoleControl, Path=FontFamily}"
         FontSize="{Binding ElementName=consoleControl, Path=FontSize}"

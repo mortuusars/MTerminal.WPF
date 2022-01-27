@@ -16,7 +16,7 @@
     d:DataContext="{d:DesignInstance Type=viewmodels:TerminalViewModel,
                                      IsDesignTimeCreatable=True}"
     d:FontFamily="Consolas"
-    Background="Black"
+    Background="{Binding Background}"
     FocusManager.FocusedElement="{Binding ElementName=CommandBox}"
     FontFamily="{Binding FontFamily}"
     FontSize="16"
@@ -237,9 +237,6 @@
                 <Setter Property="BorderBrush" Value="{StaticResource Header}" />
                 <Setter Property="Margin" Value="0" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsReadingInput, ElementName=window}" Value="True">
-                        <Setter Property="BorderBrush" Value="{Binding ReadingInputBrush}" />
-                    </DataTrigger>
                     <DataTrigger Binding="{Binding WindowState, ElementName=window}" Value="Maximized">
                         <Setter Property="Margin" Value="8" />
                     </DataTrigger>
@@ -251,43 +248,6 @@
                 <RowDefinition x:Name="HeaderRow" Height="28" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-
-
-            <Rectangle
-                x:Name="BG"
-                Grid.Row="1"
-                Fill="{Binding Background}"
-                SnapsToDevicePixels="False"
-                UseLayoutRounding="False">
-                <!--<Rectangle.Effect>
-                    <wpf:NoiseEffect Ratio="1" />
-                </Rectangle.Effect>-->
-            </Rectangle>
-
-            <!--<Image Grid.Row="1" Source="../Resources/Images/shadow.png"
-                   Height="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=60}"
-                   Stretch="Fill"
-                   Margin="0 0 0 0"
-                   VerticalAlignment="Bottom"
-                   Opacity="1"/>-->
-
-            <!--<Rectangle
-                x:Name="BottomDarken"
-                Grid.Row="1"
-                Height="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=70}"
-                VerticalAlignment="Bottom"
-                Opacity="0.3"
-                d:Height="60"
-                Visibility="Collapsed">
-                <Rectangle.Fill>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Offset="0" Color="#00000000" />
-                        <GradientStop Offset="0.5" Color="#40000000" />
-                        <GradientStop Offset="0.75" Color="#90000000" />
-                        <GradientStop Offset="1" Color="#ff000000" />
-                    </LinearGradientBrush>
-                </Rectangle.Fill>
-            </Rectangle>-->
 
             <!--  HEADER  -->
             <Border
@@ -573,9 +533,7 @@
                         d:Text="help"
                         Background="Transparent"
                         BorderThickness="0"
-                        CaretBrush="{Binding Foreground}"
                         FontSize="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=2}"
-                        Foreground="{Binding Foreground}"
                         IsInactiveSelectionHighlightEnabled="True"
                         SelectionBrush="#bbffffff"
                         Text="{Binding CommandsViewModel.CommandText, UpdateSourceTrigger=PropertyChanged, NotifyOnTargetUpdated=True}">
@@ -599,8 +557,14 @@
 
                         <TextBox.Style>
                             <Style TargetType="TextBox">
+                                <Setter Property="Foreground" Value="{Binding Foreground}" />
+                                <Setter Property="CaretBrush" Value="{Binding Foreground}" />
                                 <Setter Property="Opacity" Value="1" />
                                 <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsReadingInput, ElementName=window}" Value="True">
+                                        <Setter Property="Foreground" Value="{Binding ReadingInputBrush}" />
+                                        <Setter Property="CaretBrush" Value="{Binding ReadingInputBrush}" />
+                                    </DataTrigger>
                                     <Trigger Property="IsFocused" Value="False">
                                         <Setter Property="Opacity" Value="0.7" />
                                     </Trigger>

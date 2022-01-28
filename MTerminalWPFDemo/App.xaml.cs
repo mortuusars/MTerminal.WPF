@@ -21,19 +21,19 @@ public partial class App : Application
         // Changing window style:
         Terminal.Style.WindowTitle = "Demo Terminal";
         // Changing the default color of the text:
-        //Terminal.Style.Foreground = Color.FromRgb(31, 194, 85);
+        Terminal.Style.Foreground = Color.FromRgb(31, 194, 85);
 
         // Set Background to custom color:
         //Terminal.Style.Background = new RadialGradientBrush(Color.FromRgb(22, 40, 37), Color.FromRgb(10, 20, 16)) { Center = new Point(0.5, 0.5), RadiusX=0.8, RadiusY=1.2 };
 
         // Set Background to image:
-        //BitmapImage img = new BitmapImage(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Images/terminal_bg.png", UriKind.Absolute));
-        //var imageBrush = new ImageBrush(img);
-        //imageBrush.Stretch = Stretch.UniformToFill;
-        //Terminal.Style.Background = imageBrush;
+        BitmapImage img = new BitmapImage(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Images/terminal_bg.png", UriKind.Absolute));
+        var imageBrush = new ImageBrush(img);
+        imageBrush.Stretch = Stretch.UniformToFill;
+        Terminal.Style.Background = imageBrush;
 
         // Set custom font
-        //Terminal.Style.FontFamily = new FontFamily(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Fonts/"), "./#Classic Console Neue");
+        Terminal.Style.FontFamily = new FontFamily(new Uri("pack://application:,,,/MTerminalWPFDemo;component/Fonts/"), "./#Classic Console Neue");
 
         // Adding commands:
         Terminal.Commands.Add(new TerminalCommand("exit")
@@ -42,17 +42,17 @@ public partial class App : Application
             Action = (_) => Shutdown()
         });
 
-        Terminal.Commands.Add(new TerminalCommand("write", "", (args) => Terminal.WriteLine(string.Join(' ', args))).AddAlias("print"));
-        Terminal.Commands.Add(new TerminalCommand("read", "", (_) => Task.Run(Read)));
+        Terminal.Commands.Add(new TerminalCommand("read", "Reads user input", (_) => Task.Run(Read)));
 
         // Show the window:
         Terminal.Show();
 
-        Terminal.WriteLine("Writing to a Terminal.", Colors.Fuchsia);
-
         // Check terminal state:
         bool isOpen = Terminal.IsOpen;
         bool isVisible = Terminal.IsVisible;
+
+        // Writing:
+        Terminal.WriteLine("Writing to a Terminal.", Colors.Fuchsia);
 
         // Redirect console output to the terminal:
         Console.SetOut(Terminal.Out);

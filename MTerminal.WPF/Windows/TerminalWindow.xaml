@@ -18,7 +18,6 @@
     d:FontFamily="Consolas"
     Background="{Binding Background}"
     FocusManager.FocusedElement="{Binding ElementName=CommandBox}"
-    FontFamily="{Binding FontFamily}"
     FontSize="16"
     Foreground="{Binding Foreground}"
     ResizeMode="CanResize"
@@ -274,9 +273,9 @@
                             VerticalAlignment="Center"
                             Source="../Resources/Images/console.png" />
                         <TextBlock
-                            Margin="6,2,6,0"
+                            Margin="7,-1,6,0"
                             VerticalAlignment="Center"
-                            FontSize="16"
+                            FontSize="14"
                             Foreground="#ccc"
                             SnapsToDevicePixels="True"
                             Text="{Binding Title}"
@@ -387,10 +386,7 @@
                                 </Viewbox>
                             </Button.Content>
                         </Button>
-
-
                     </StackPanel>
-
                 </Grid>
             </Border>
 
@@ -407,6 +403,7 @@
                     Margin="0,0,0,14"
                     BorderThickness="0"
                     Cursor="Arrow"
+                    FontFamily="{Binding FontFamily}"
                     FontSize="{Binding FontSize, ElementName=window}"
                     Foreground="{Binding Foreground}" />
 
@@ -512,6 +509,7 @@
                         </Path>
                     </Viewbox>
 
+                    <!--  Autocomplete  -->
                     <TextBlock
                         x:Name="AutocompleteSuggestion"
                         Grid.Column="1"
@@ -519,6 +517,7 @@
                         VerticalAlignment="Center"
                         d:Text="help asd"
                         Focusable="False"
+                        FontFamily="{Binding FontFamily}"
                         FontSize="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=2}"
                         Foreground="{Binding Foreground}"
                         Opacity="0.4"
@@ -533,6 +532,7 @@
                         d:Text="help"
                         Background="Transparent"
                         BorderThickness="0"
+                        FontFamily="{Binding FontFamily}"
                         FontSize="{Binding FontSize, ElementName=window, Converter={StaticResource FontSizeBigger}, ConverterParameter=2}"
                         IsInactiveSelectionHighlightEnabled="True"
                         SelectionBrush="#bbffffff"
@@ -572,17 +572,6 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-
-                    <!--<Ellipse
-                        x:Name="ReadingIndicator"
-                        Grid.Column="1"
-                        Width="{Binding FontSize, ElementName=window}"
-                        Height="{Binding FontSize, ElementName=window}"
-                        HorizontalAlignment="Right"
-                        Fill="#F76464"
-                        Visibility="{Binding ElementName=window, Path=IsReadingInput, Converter={StaticResource BoolToVisibility}}" />-->
-
-
                 </Grid>
             </Grid>
         </Grid>

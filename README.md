@@ -1,4 +1,9 @@
 <div align="center">
+[![.NET Version 6.0](https://img.shields.io/badge/.NET-6.0-green)](https://www.nuget.org/packages/MTerminal.WPF/)
+</div>
+
+
+<div align="center">
   <h2>MTerminal provides a "console" for the WPF apps.</h2>
   
   Terminal is a simple WPF window that can display text and has an input box for commands.

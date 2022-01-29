@@ -18,6 +18,7 @@
 		<PackageTags>wpf console terminal commands command shell cli</PackageTags>
 		<PackageReleaseNotes>
 			0.1.2 - Fixed version number. Small fix in 'help' command.
+					Added Color extension method to change opacity.
 			0.1.1 - Fixed Show after window was closed.
 			0.1.0 - Initial release.
 		</PackageReleaseNotes>

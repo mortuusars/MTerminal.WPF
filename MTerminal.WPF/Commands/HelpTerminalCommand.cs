@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using MTerminal.WPF.Utils;
+using System.Windows.Media;
 
 namespace MTerminal.WPF.Commands;
 
@@ -54,8 +55,8 @@ internal class HelpTerminalCommand : TerminalCommand
     /// <summary>Prints some info about Terminal and lists all avalilable commands.</summary>
     private void PrintGeneralHelp(IEnumerable<TerminalCommand> commands)
     {
-        Terminal.Write($"MTerminal - {Terminal.Version.ToString(3)}", Colors.LightGray);
-        Terminal.WriteLine(" - By Mortuus\n", Colors.Gray);
+        Terminal.Write($"MTerminal - {Terminal.Version.ToString(3)}");
+        Terminal.WriteLine(" - By Mortuus\n", Terminal.Style.Foreground.WithOpacity(0.5));
 
         if (!commands.Any())
         {
@@ -70,15 +71,15 @@ internal class HelpTerminalCommand : TerminalCommand
 
         int cmdColumnLength = Math.Max(11, longestCommand.Length + 3);
 
-        Terminal.WriteLine("<Command>".PadRight(cmdColumnLength) + "|  <Description - [] is optional parameter>");
+        Terminal.WriteLine("<Command>".PadRight(cmdColumnLength) + "|  <Description>");
         Terminal.WriteLine(new string('_', 40) + "\n"); // Divider
 
         foreach (var cmd in commands)
         {
             if (cmd.Aliases.Count > 0)
-                Terminal.Write($"{cmd.Command} / {string.Join(" / ", cmd.Aliases)}".PadRight(cmdColumnLength), Colors.LightGray);
+                Terminal.Write($"{cmd.Command} / {string.Join(" / ", cmd.Aliases)}".PadRight(cmdColumnLength));
             else
-                Terminal.Write(cmd.Command.PadRight(cmdColumnLength), Colors.LightGray);
+                Terminal.Write(cmd.Command.PadRight(cmdColumnLength));
             Terminal.WriteLine("|  " + cmd.Description);
         }
 
@@ -102,27 +103,27 @@ internal class HelpTerminalCommand : TerminalCommand
     {
         // Command name and aliases:
         if (cmd.Aliases.Count > 0)
-            Terminal.Write($"{cmd.Command} / {string.Join(" / ", cmd.Aliases)}: ", Colors.LightGreen);
+            Terminal.Write($"{cmd.Command} / {string.Join(" / ", cmd.Aliases)}: ");
         else
-            Terminal.Write(cmd.Command + ": ", Colors.LightGreen);
+            Terminal.Write(cmd.Command + ": ");
 
         // Description:
         if (string.IsNullOrWhiteSpace(cmd.Description) && string.IsNullOrWhiteSpace(cmd.DetailedDescription))
         {
-            Terminal.WriteLine("\n<No description>", Colors.DarkGray);
+            Terminal.WriteLine("\n<No description>");
             return;
         }
 
         if (!string.IsNullOrWhiteSpace(cmd.Description))
         {
-            Terminal.WriteLine($"{cmd.Description}", Colors.DarkGray);
+            Terminal.WriteLine($"{cmd.Description}");
         }
 
         // Detailed:
         if (!cmd.DetailedDescription.Equals(string.Empty))
         {
-            Terminal.WriteLine("  Details:", Colors.LightGray);
-            Terminal.WriteLine($"  {cmd.DetailedDescription}", Colors.DarkGray);
+            Terminal.WriteLine("  Details:");
+            Terminal.WriteLine($"  {cmd.DetailedDescription}");
         }
     }
 }

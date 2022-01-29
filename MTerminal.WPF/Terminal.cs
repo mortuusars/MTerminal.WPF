@@ -129,6 +129,7 @@ public static class Terminal
 
         var window = new TerminalWindow();
         window.DataContext = TerminalViewModel;
+        window.Closed += (s, e) => Close();
         return window;
     }
 

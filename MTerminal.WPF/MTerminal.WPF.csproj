@@ -11,12 +11,13 @@
 		<Authors>mortuus</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Version>0.1.1</Version>
+		<Version>0.1.2</Version>
 		<PackageProjectUrl>https://github.com/mortuusars/MTerminal.WPF</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mortuusars/MTerminal.WPF</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>wpf console terminal commands command shell cli</PackageTags>
 		<PackageReleaseNotes>
+			0.1.2 - Fixed version number. Small fix in 'help' command.
 			0.1.1 - Fixed Show after window was closed.
 			0.1.0 - Initial release.
 		</PackageReleaseNotes>

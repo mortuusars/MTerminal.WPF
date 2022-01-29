@@ -12,7 +12,7 @@ namespace MTerminal.WPF;
 public static class Terminal
 {
     /// <summary>Version of the Terminal.</summary>
-    public static readonly Version Version = new Version("0.2.0");
+    public static readonly Version Version = MTerminal.WPF.Utils.Version.GetVersion() ?? new Version("0.0.0");
     /// <summary>Can be set as output of a <see cref="Console"/> by using <see cref="Console.SetOut(System.IO.TextWriter)"/>.</summary>
     public static TerminalWriter Out { get; }
     /// <summary>Provides access to Terminal Commands.</summary>

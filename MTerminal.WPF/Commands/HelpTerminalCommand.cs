@@ -54,7 +54,7 @@ internal class HelpTerminalCommand : TerminalCommand
     /// <summary>Prints some info about Terminal and lists all avalilable commands.</summary>
     private void PrintGeneralHelp(IEnumerable<TerminalCommand> commands)
     {
-        Terminal.Write($"MTerminal - {Terminal.Version}", Colors.LightGray);
+        Terminal.Write($"MTerminal - {Terminal.Version.ToString(3)}", Colors.LightGray);
         Terminal.WriteLine(" - By Mortuus\n", Colors.Gray);
 
         if (!commands.Any())

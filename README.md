@@ -1,5 +1,6 @@
 <div align="center">
   
+[![Nuget Version](https://img.shields.io/nuget/v/MTerminal.WPF)](https://www.nuget.org/packages/MTerminal.WPF/)
 [![.NET Version 6.0](https://img.shields.io/badge/.NET-6.0-green)](https://www.nuget.org/packages/MTerminal.WPF/)
   
 </div>
